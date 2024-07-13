@@ -1,0 +1,8 @@
+{
+  "name": "com.cgbecker.sim.pack",
+  "description": "Simulation package contains shareable codebase for Unity Games and Simulations",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "displayName": "Unity Simulation Pack",
+  "dependencies": {}
+}
