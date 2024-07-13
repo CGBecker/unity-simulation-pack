@@ -33,7 +33,7 @@ public class FourWheelController : MonoBehaviour
         {
             for (int motorsIndex = 0; motorsIndex < WheelsMotors.Length; motorsIndex++)
             {
-                WheelsMotors[motorsIndex].AddRelativeTorque(Vector3.forward * 1000);
+                WheelsMotors[motorsIndex].AddRelativeTorque(Vector3.right * 200);
                 Debug.Log("Trying to add torque to: " + WheelsMotors[motorsIndex].transform.name);
             }
         }
@@ -42,18 +42,18 @@ public class FourWheelController : MonoBehaviour
         {
             for (int brakesIndex = 0; brakesIndex < WheelsWithBrakes.Length; brakesIndex++)
             {
-                WheelsWithBrakes[brakesIndex].AddRelativeTorque(Vector3.back * 1000);
+                WheelsWithBrakes[brakesIndex].AddRelativeTorque(Vector3.left * 100);
                 Debug.Log("Trying to brake: " + WheelsWithBrakes[brakesIndex].transform.name);
             }
         }
 
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
         {
-            steeringForce = 100f;
+            steeringForce = -100f;
         }
         else if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
         {
-            steeringForce = -100f;
+            steeringForce = 100f;
         }
         else
         {
@@ -64,7 +64,7 @@ public class FourWheelController : MonoBehaviour
         {
             for (int wheelsSteeringIndex = 0; wheelsSteeringIndex < WheelsSteering.Length; wheelsSteeringIndex++)
             {
-                WheelsSteering[wheelsSteeringIndex].AddRelativeTorque(new Vector3(0, steeringForce, 0));
+                WheelsSteering[wheelsSteeringIndex].AddRelativeTorque(new Vector3(0, 0, steeringForce));
                 Debug.Log("Trying to add steer: " + WheelsSteering[wheelsSteeringIndex].transform.name);
             }
         }
