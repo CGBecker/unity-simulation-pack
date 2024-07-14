@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class FourWheelController : MonoBehaviour
 {
@@ -25,19 +26,19 @@ public class FourWheelController : MonoBehaviour
         for (int wheelsSteeringIndex = 0; wheelsSteeringIndex < WheelsSteering.Length; wheelsSteeringIndex++)
             {
                 WheelsSteering[wheelsSteeringIndex].SetDriveForceLimit(ArticulationDriveAxis.Y, MaxSteeringForce);
-                Debug.Log("Setting maximum steering force: " + WheelsSteering[wheelsSteeringIndex].transform.name
-                            + " to " + MaxSteeringForce);
             }
     }
     
+    /// <summary>
+    /// Calculating basic vehicle behaviour  // TODO: Add correct braking system, disconnecting from drive system
+    /// </summary>
     void FixedUpdate()
     {
         if (Input.GetKey(KeyCode.W))
         {
             for (int motorsIndex = 0; motorsIndex < WheelsMotors.Length; motorsIndex++)
             {
-                WheelsMotors[motorsIndex].AddRelativeTorque(Vector3.right * motorsTorque);
-                Debug.Log("Trying to add torque to: " + WheelsMotors[motorsIndex].transform.name);
+                WheelsMotors[motorsIndex].AddRelativeTorque(new float3(1, 0, 0) * motorsTorque);
             }
         }
 
@@ -45,8 +46,7 @@ public class FourWheelController : MonoBehaviour
         {
             for (int brakesIndex = 0; brakesIndex < WheelsWithBrakes.Length; brakesIndex++)
             {
-                WheelsWithBrakes[brakesIndex].AddRelativeTorque(Vector3.left * brakesAndReverseTorque);
-                Debug.Log("Trying to brake: " + WheelsWithBrakes[brakesIndex].transform.name);
+                WheelsWithBrakes[brakesIndex].AddRelativeTorque(new float3(-1, 0, 0) * brakesAndReverseTorque);
             }
         }
 
@@ -67,8 +67,7 @@ public class FourWheelController : MonoBehaviour
         {
             for (int wheelsSteeringIndex = 0; wheelsSteeringIndex < WheelsSteering.Length; wheelsSteeringIndex++)
             {
-                WheelsSteering[wheelsSteeringIndex].AddRelativeTorque(new Vector3(0, 0, _steeringForce));
-                Debug.Log("Trying to add steer: " + WheelsSteering[wheelsSteeringIndex].transform.name);
+                WheelsSteering[wheelsSteeringIndex].AddRelativeTorque(new float3(0, 0, _steeringForce));
             }
         }
     }
