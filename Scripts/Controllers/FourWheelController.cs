@@ -6,14 +6,17 @@ public class FourWheelController : MonoBehaviour
 {
     public ArticulationBody RootArticulationBody;
     public ArticulationBody[] WheelsMotors;
+    public float motorsTorque;
 
     public ArticulationBody[] WheelsSuspensions;
 
     public ArticulationBody[] WheelsSteering;
     public float MaxSteeringForce;
-    private float steeringForce;
+    public float SteeringForce;
+    private float _steeringForce;
 
     public ArticulationBody[] WheelsWithBrakes;
+    public float brakesAndReverseTorque;
 
 
 
@@ -33,7 +36,7 @@ public class FourWheelController : MonoBehaviour
         {
             for (int motorsIndex = 0; motorsIndex < WheelsMotors.Length; motorsIndex++)
             {
-                WheelsMotors[motorsIndex].AddRelativeTorque(Vector3.right * 200);
+                WheelsMotors[motorsIndex].AddRelativeTorque(Vector3.right * motorsTorque);
                 Debug.Log("Trying to add torque to: " + WheelsMotors[motorsIndex].transform.name);
             }
         }
@@ -42,29 +45,29 @@ public class FourWheelController : MonoBehaviour
         {
             for (int brakesIndex = 0; brakesIndex < WheelsWithBrakes.Length; brakesIndex++)
             {
-                WheelsWithBrakes[brakesIndex].AddRelativeTorque(Vector3.left * 100);
+                WheelsWithBrakes[brakesIndex].AddRelativeTorque(Vector3.left * brakesAndReverseTorque);
                 Debug.Log("Trying to brake: " + WheelsWithBrakes[brakesIndex].transform.name);
             }
         }
 
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
         {
-            steeringForce = -100f;
+            _steeringForce = -SteeringForce;
         }
         else if (Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
         {
-            steeringForce = 100f;
+            _steeringForce = SteeringForce;
         }
         else
         {
-            steeringForce = 0f;
+            _steeringForce = 0f;
         }
 
-        if (steeringForce != 0f)
+        if (_steeringForce != 0f)
         {
             for (int wheelsSteeringIndex = 0; wheelsSteeringIndex < WheelsSteering.Length; wheelsSteeringIndex++)
             {
-                WheelsSteering[wheelsSteeringIndex].AddRelativeTorque(new Vector3(0, 0, steeringForce));
+                WheelsSteering[wheelsSteeringIndex].AddRelativeTorque(new Vector3(0, 0, _steeringForce));
                 Debug.Log("Trying to add steer: " + WheelsSteering[wheelsSteeringIndex].transform.name);
             }
         }
