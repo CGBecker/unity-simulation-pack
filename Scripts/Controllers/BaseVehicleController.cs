@@ -33,6 +33,7 @@ public class BaseVehicleController : MonoBehaviour
     public float TailAndBrakeLightsTargetIntensityOn;
     private float _previousTailAndBrakeLightsIntensity;
     private float _tailAndBrakeLightsTargetIntensity;
+    private float _brakeLightsMultiplier = 1f;
     public HDAdditionalLightData[] ReverseLights;
     public float ReverseLightsTargetIntensityOn;
     private float _previousReverseLightsIntensity;
@@ -109,6 +110,7 @@ public class BaseVehicleController : MonoBehaviour
         else
         {
             _toggleBrakesOrReverse = false;
+            _reverseLightsTargetIntensity = 0f;
         }
 
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
@@ -127,7 +129,7 @@ public class BaseVehicleController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L))
         {
             _previousHeadLightsIntensity = _previousHeadLightsIntensity == 0f ? HeadLights[0].intensity : 0f;
-            _previousReverseLightsIntensity = _previousReverseLightsIntensity == 0f ? ReverseLights[0].intensity : 0f;
+            // _previousReverseLightsIntensity = _previousReverseLightsIntensity == 0f ? ReverseLights[0].intensity : 0f;
             _previousTailAndBrakeLightsIntensity = _previousTailAndBrakeLightsIntensity == 0f ? TailAndBrakeLights[0].intensity : 0f;
             _lightSwitch = !_lightSwitch;
         }
@@ -144,20 +146,25 @@ public class BaseVehicleController : MonoBehaviour
             ThrottleCommand(WheelsMotors, ForwardTorque);
         }
 
+        Debug.Log(WheelsWithBrakes[0].velocity);
         if (_toggleBrakesOrReverse)  // TODO: Improve braking system with smarter call to brakes command
         {
             for (int brakesIndex = 0; brakesIndex < WheelsWithBrakes.Length; brakesIndex++)
             {
-                if (WheelsWithBrakes[brakesIndex].angularVelocity.x > 0f && WheelsWithBrakes[brakesIndex].angularVelocity.y > 0f && WheelsWithBrakes[brakesIndex].angularVelocity.z > 0f)
+                if (WheelsWithBrakes[brakesIndex].velocity.z > 0f)
                 {
+                    if (_brakeLightsMultiplier == 1f) _brakeLightsMultiplier = 2f;
                     BrakesCommand(WheelsWithBrakes, BrakesTorque);
                 }
                 else
                 {
+                    if (_brakeLightsMultiplier != 1f) _brakeLightsMultiplier = 1f;
                     BrakesCommand(WheelsWithBrakes, _originalFrictions);
+                    _reverseLightsTargetIntensity = ReverseLightsTargetIntensityOn;
                     ThrottleCommand(WheelsMotors, ReverseTorque*-1);
                 }
             }
+            Debug.Log(_brakeLightsMultiplier);
         }
 
         if (_steeringForce != 0f)
@@ -172,18 +179,20 @@ public class BaseVehicleController : MonoBehaviour
         {
             _headLightsTargetIntensity = HeadLightsTargetIntensityOn;
             _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
-            _reverseLightsTargetIntensity = ReverseLightsTargetIntensityOn;
+        }
+        else if (_brakeLightsMultiplier > 1f)
+        {
+            _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
         }
         else
         {
             _headLightsTargetIntensity = 0f;
             _tailAndBrakeLightsTargetIntensity = 0f;
-            _reverseLightsTargetIntensity = 0f;
         }
 
         LightProgressiveControl(HeadLights, _headLightsTargetIntensity, _previousHeadLightsIntensity);  // TODO: Call to light progressive control too frequent, consider AsyncTask
 
-        LightProgressiveControl(TailAndBrakeLights, _tailAndBrakeLightsTargetIntensity, _previousTailAndBrakeLightsIntensity);
+        LightProgressiveControl(TailAndBrakeLights, _tailAndBrakeLightsTargetIntensity*_brakeLightsMultiplier, _previousTailAndBrakeLightsIntensity);
 
         LightProgressiveControl(ReverseLights, _reverseLightsTargetIntensity, _previousReverseLightsIntensity);
     }
