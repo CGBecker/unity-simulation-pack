@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
 using System.Linq;
+using UnityEngine.Rendering.HighDefinition;
 
 public class BaseVehicleController : MonoBehaviour
 {
@@ -24,20 +25,20 @@ public class BaseVehicleController : MonoBehaviour
     private float[] _originalFrictions;
     private bool _toggleBrakesOrReverse = false;
 
-    public Light[] HeadLights;
+    public HDAdditionalLightData[] HeadLights;
     public float HeadLightsTargetIntensityOn;
     private float _previousHeadLightsIntensity;
     private float _headLightsTargetIntensity;
-    public Light[] TailAndBrakeLights;
+    public HDAdditionalLightData[] TailAndBrakeLights;
     public float TailAndBrakeLightsTargetIntensityOn;
     private float _previousTailAndBrakeLightsIntensity;
-    private float _tailAndBrakeLightsIntensity;
-    public Light[] ReverseLights;
+    private float _tailAndBrakeLightsTargetIntensity;
+    public HDAdditionalLightData[] ReverseLights;
     public float ReverseLightsTargetIntensityOn;
     private float _previousReverseLightsIntensity;
-    private float _reverseLightsIntensity;
-    private int _lightsProgressionDelta = 20;
-    private bool _lightSwitch = false;
+    private float _reverseLightsTargetIntensity;
+    private int _lightsProgressionDelta = 40;
+    private bool _lightSwitch;
 
 
 
@@ -48,6 +49,13 @@ public class BaseVehicleController : MonoBehaviour
 
         InitialiseBrakes();
 
+        _previousHeadLightsIntensity = HeadLights[0].intensity;
+        _headLightsTargetIntensity = 0f;
+        _previousReverseLightsIntensity = ReverseLights[0].intensity;
+        _tailAndBrakeLightsTargetIntensity = 0f;
+        _previousTailAndBrakeLightsIntensity = TailAndBrakeLights[0].intensity;
+        _reverseLightsTargetIntensity = 0f;
+        
         InitialiseLights(HeadLights);
 
         InitialiseLights(TailAndBrakeLights);
@@ -72,12 +80,14 @@ public class BaseVehicleController : MonoBehaviour
         }
     }
 
-    private void InitialiseLights(Light[] lights)
+    private void InitialiseLights(HDAdditionalLightData[] lights)
     {
         for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
         {
+            lights[lightsIndex].lightUnit = LightUnit.Lumen;
             lights[lightsIndex].intensity = 0f;
-            lights[lightsIndex].enabled = false;
+            lights[lightsIndex].gameObject.SetActive(false);
+            _lightSwitch = false;
         }
     }
 
@@ -116,10 +126,10 @@ public class BaseVehicleController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.L))
         {
-            _previousHeadLightsIntensity = _previousHeadLightsIntensity == HeadLightsTargetIntensityOn ? 0f : HeadLightsTargetIntensityOn;
-            _previousReverseLightsIntensity = _previousReverseLightsIntensity == ReverseLightsTargetIntensityOn ? 0f : ReverseLightsTargetIntensityOn;
-            _previousTailAndBrakeLightsIntensity = _previousTailAndBrakeLightsIntensity == TailAndBrakeLightsTargetIntensityOn ? 0f : TailAndBrakeLightsTargetIntensityOn;
-           _lightSwitch = !_lightSwitch;
+            _previousHeadLightsIntensity = _previousHeadLightsIntensity == 0f ? HeadLights[0].intensity : 0f;
+            _previousReverseLightsIntensity = _previousReverseLightsIntensity == 0f ? ReverseLights[0].intensity : 0f;
+            _previousTailAndBrakeLightsIntensity = _previousTailAndBrakeLightsIntensity == 0f ? TailAndBrakeLights[0].intensity : 0f;
+            _lightSwitch = !_lightSwitch;
         }
 
     }
@@ -134,7 +144,7 @@ public class BaseVehicleController : MonoBehaviour
             ThrottleCommand(WheelsMotors, ForwardTorque);
         }
 
-        if (_toggleBrakesOrReverse)
+        if (_toggleBrakesOrReverse)  // TODO: Improve braking system with smarter call to brakes command
         {
             for (int brakesIndex = 0; brakesIndex < WheelsWithBrakes.Length; brakesIndex++)
             {
@@ -161,21 +171,21 @@ public class BaseVehicleController : MonoBehaviour
         if (_lightSwitch)
         {
             _headLightsTargetIntensity = HeadLightsTargetIntensityOn;
-            _tailAndBrakeLightsIntensity = TailAndBrakeLightsTargetIntensityOn;
-            _reverseLightsIntensity = ReverseLightsTargetIntensityOn;
+            _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
+            _reverseLightsTargetIntensity = ReverseLightsTargetIntensityOn;
         }
         else
         {
             _headLightsTargetIntensity = 0f;
-            _tailAndBrakeLightsIntensity = 0f;
-            _reverseLightsIntensity = 0f;
+            _tailAndBrakeLightsTargetIntensity = 0f;
+            _reverseLightsTargetIntensity = 0f;
         }
 
-        LightProgressiveControl(HeadLights, _headLightsTargetIntensity, _previousHeadLightsIntensity);
+        LightProgressiveControl(HeadLights, _headLightsTargetIntensity, _previousHeadLightsIntensity);  // TODO: Call to light progressive control too frequent, consider AsyncTask
 
-        LightProgressiveControl(TailAndBrakeLights, _tailAndBrakeLightsIntensity, _previousTailAndBrakeLightsIntensity);
+        LightProgressiveControl(TailAndBrakeLights, _tailAndBrakeLightsTargetIntensity, _previousTailAndBrakeLightsIntensity);
 
-        LightProgressiveControl(ReverseLights, _reverseLightsIntensity, _previousReverseLightsIntensity);
+        LightProgressiveControl(ReverseLights, _reverseLightsTargetIntensity, _previousReverseLightsIntensity);
     }
 
     public void ThrottleCommand(ArticulationBody[] motors, float torque)
@@ -202,21 +212,21 @@ public class BaseVehicleController : MonoBehaviour
         }
     }
 
-    private void LightProgressiveControl(Light[] lights, float targetIntesity, float previousIntesity)
+    private void LightProgressiveControl(HDAdditionalLightData[] lights, float targetIntesity, float previousIntesity)  // TODO: Consider improvement or AsyncTask
     {
-        for (int lightIndex = 0; lightIndex < lights.Length; lightIndex++)
+        for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
         {
-            if (lights[lightIndex].intensity > 1f && !lights[lightIndex].enabled)
+            if (lights[lightsIndex].intensity > 1f && !lights[lightsIndex].gameObject.activeSelf)
             {
-                lights[lightIndex].enabled = true;
+                lights[lightsIndex].gameObject.SetActive(true);
             }
-            else if (lights[lightIndex].intensity <= 1f && lights[lightIndex].enabled)
+            else if (lights[lightsIndex].intensity <= 1f && lights[lightsIndex].enabled)
             {
-                lights[lightIndex].enabled = false;
+                lights[lightsIndex].gameObject.SetActive(false);
             }
-            if (lights[lightIndex].enabled && lights[lightIndex].intensity != targetIntesity)
+            if (lights[lightsIndex].intensity != targetIntesity)
             {
-                lights[lightIndex].intensity -= (previousIntesity-targetIntesity)/_lightsProgressionDelta;
+                lights[lightsIndex].intensity -= (previousIntesity-targetIntesity)/_lightsProgressionDelta;
             }
         }
     }
