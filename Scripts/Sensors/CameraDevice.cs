@@ -4,15 +4,9 @@ using UnityEngine;
 
 public class CameraDevice : BaseSensor
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // Create camera component
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // initialise and configure camera component from given settings
+
+    // Command for custom render if needed
 }

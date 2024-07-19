@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class Bootstrap : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // initialise based on target environment and target vehicle
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // environment screen selection (Menu)
+
+    // use addressables for loading
+
+    // read urdf or XML description for building vehicle
 }

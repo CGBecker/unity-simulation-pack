@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class Gyroscope : BaseSensor
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // command for on-demand
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // take reading on-demand or not
 }

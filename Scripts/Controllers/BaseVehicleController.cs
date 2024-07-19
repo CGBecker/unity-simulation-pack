@@ -25,21 +25,21 @@ public class BaseVehicleController : MonoBehaviour
     private float[] _originalFrictions;
     private bool _toggleBrakesOrReverse = false;
 
-    public HDAdditionalLightData[] HeadLights;
-    public float HeadLightsTargetIntensityOn;
-    private float _previousHeadLightsIntensity;
-    private float _headLightsTargetIntensity;
-    public HDAdditionalLightData[] TailAndBrakeLights;
-    public float TailAndBrakeLightsTargetIntensityOn;
-    private float _previousTailAndBrakeLightsIntensity;
-    private float _tailAndBrakeLightsTargetIntensity;
-    private float _brakeLightsMultiplier = 1f;
-    public HDAdditionalLightData[] ReverseLights;
-    public float ReverseLightsTargetIntensityOn;
-    private float _previousReverseLightsIntensity;
-    private float _reverseLightsTargetIntensity;
-    private int _lightsProgressionDelta = 40;
-    private bool _lightSwitch;
+    // public HDAdditionalLightData[] HeadLights;
+    // public float HeadLightsTargetIntensityOn;
+    // private float _previousHeadLightsIntensity;
+    // private float _headLightsTargetIntensity;
+    // public HDAdditionalLightData[] TailAndBrakeLights;
+    // public float TailAndBrakeLightsTargetIntensityOn;
+    // private float _previousTailAndBrakeLightsIntensity;
+    // private float _tailAndBrakeLightsTargetIntensity;
+    // private float _brakeLightsMultiplier = 1f;
+    // public HDAdditionalLightData[] ReverseLights;
+    // public float ReverseLightsTargetIntensityOn;
+    // private float _previousReverseLightsIntensity;
+    // private float _reverseLightsTargetIntensity;
+    // private int _lightsProgressionDelta = 40;
+    // private bool _lightSwitch;
 
 
 
@@ -50,18 +50,18 @@ public class BaseVehicleController : MonoBehaviour
 
         InitialiseBrakes();
 
-        _previousHeadLightsIntensity = HeadLights[0].intensity;
-        _headLightsTargetIntensity = 0f;
-        _previousReverseLightsIntensity = ReverseLights[0].intensity;
-        _tailAndBrakeLightsTargetIntensity = 0f;
-        _previousTailAndBrakeLightsIntensity = TailAndBrakeLights[0].intensity;
-        _reverseLightsTargetIntensity = 0f;
+        // _previousHeadLightsIntensity = HeadLights[0].intensity;
+        // _headLightsTargetIntensity = 0f;
+        // _previousReverseLightsIntensity = ReverseLights[0].intensity;
+        // _tailAndBrakeLightsTargetIntensity = 0f;
+        // _previousTailAndBrakeLightsIntensity = TailAndBrakeLights[0].intensity;
+        // _reverseLightsTargetIntensity = 0f;
         
-        InitialiseLights(HeadLights);
+        // InitialiseLights(HeadLights);
 
-        InitialiseLights(TailAndBrakeLights);
+        // InitialiseLights(TailAndBrakeLights);
 
-        InitialiseLights(ReverseLights);
+        // InitialiseLights(ReverseLights);
     }
 
     private void InitialiseBrakes()
@@ -81,16 +81,16 @@ public class BaseVehicleController : MonoBehaviour
         }
     }
 
-    private void InitialiseLights(HDAdditionalLightData[] lights)
-    {
-        for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
-        {
-            lights[lightsIndex].lightUnit = LightUnit.Lumen;
-            lights[lightsIndex].intensity = 0f;
-            lights[lightsIndex].gameObject.SetActive(false);
-            _lightSwitch = false;
-        }
-    }
+    // private void InitialiseLights(HDAdditionalLightData[] lights)
+    // {
+    //     for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
+    //     {
+    //         lights[lightsIndex].lightUnit = LightUnit.Lumen;
+    //         lights[lightsIndex].intensity = 0f;
+    //         lights[lightsIndex].gameObject.SetActive(false);
+    //         // _lightSwitch = false;
+    //     }
+    // }
 
     void Update()
     {
@@ -110,7 +110,7 @@ public class BaseVehicleController : MonoBehaviour
         else
         {
             _toggleBrakesOrReverse = false;
-            _reverseLightsTargetIntensity = 0f;
+            // _reverseLightsTargetIntensity = 0f;
         }
 
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
@@ -128,10 +128,10 @@ public class BaseVehicleController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.L))
         {
-            _previousHeadLightsIntensity = _previousHeadLightsIntensity == 0f ? HeadLights[0].intensity : 0f;
+            // _previousHeadLightsIntensity = _previousHeadLightsIntensity == 0f ? HeadLights[0].intensity : 0f;
             // _previousReverseLightsIntensity = _previousReverseLightsIntensity == 0f ? ReverseLights[0].intensity : 0f;
-            _previousTailAndBrakeLightsIntensity = _previousTailAndBrakeLightsIntensity == 0f ? TailAndBrakeLights[0].intensity : 0f;
-            _lightSwitch = !_lightSwitch;
+            // _previousTailAndBrakeLightsIntensity = _previousTailAndBrakeLightsIntensity == 0f ? TailAndBrakeLights[0].intensity : 0f;
+            // _lightSwitch = !_lightSwitch;
         }
 
     }
@@ -153,18 +153,17 @@ public class BaseVehicleController : MonoBehaviour
             {
                 if (WheelsWithBrakes[brakesIndex].velocity.z > 0f)
                 {
-                    if (_brakeLightsMultiplier == 1f) _brakeLightsMultiplier = 2f;
+                    // if (_brakeLightsMultiplier == 1f) _brakeLightsMultiplier = 2f;
                     BrakesCommand(WheelsWithBrakes, BrakesTorque);
                 }
                 else
                 {
-                    if (_brakeLightsMultiplier != 1f) _brakeLightsMultiplier = 1f;
+                    // if (_brakeLightsMultiplier != 1f) _brakeLightsMultiplier = 1f;
                     BrakesCommand(WheelsWithBrakes, _originalFrictions);
-                    _reverseLightsTargetIntensity = ReverseLightsTargetIntensityOn;
+                    // _reverseLightsTargetIntensity = ReverseLightsTargetIntensityOn;
                     ThrottleCommand(WheelsMotors, ReverseTorque*-1);
                 }
             }
-            Debug.Log(_brakeLightsMultiplier);
         }
 
         if (_steeringForce != 0f)
@@ -175,26 +174,26 @@ public class BaseVehicleController : MonoBehaviour
             }
         }
 
-        if (_lightSwitch)
-        {
-            _headLightsTargetIntensity = HeadLightsTargetIntensityOn;
-            _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
-        }
-        else if (_brakeLightsMultiplier > 1f)
-        {
-            _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
-        }
-        else
-        {
-            _headLightsTargetIntensity = 0f;
-            _tailAndBrakeLightsTargetIntensity = 0f;
-        }
+        // if (_lightSwitch)
+        // {
+        //     _headLightsTargetIntensity = HeadLightsTargetIntensityOn;
+        //     _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
+        // }
+        // else if (_brakeLightsMultiplier > 1f)
+        // {
+        //     _tailAndBrakeLightsTargetIntensity = TailAndBrakeLightsTargetIntensityOn;
+        // }
+        // else
+        // {
+        //     _headLightsTargetIntensity = 0f;
+        //     _tailAndBrakeLightsTargetIntensity = 0f;
+        // }
 
-        LightProgressiveControl(HeadLights, _headLightsTargetIntensity, _previousHeadLightsIntensity);  // TODO: Call to light progressive control too frequent, consider AsyncTask
+        // LightProgressiveControl(HeadLights, _headLightsTargetIntensity, _previousHeadLightsIntensity);  // TODO: Call to light progressive control too frequent, consider AsyncTask
 
-        LightProgressiveControl(TailAndBrakeLights, _tailAndBrakeLightsTargetIntensity*_brakeLightsMultiplier, _previousTailAndBrakeLightsIntensity);
+        // LightProgressiveControl(TailAndBrakeLights, _tailAndBrakeLightsTargetIntensity*_brakeLightsMultiplier, _previousTailAndBrakeLightsIntensity);
 
-        LightProgressiveControl(ReverseLights, _reverseLightsTargetIntensity, _previousReverseLightsIntensity);
+        // LightProgressiveControl(ReverseLights, _reverseLightsTargetIntensity, _previousReverseLightsIntensity);
     }
 
     public void ThrottleCommand(ArticulationBody[] motors, float torque)
@@ -221,22 +220,22 @@ public class BaseVehicleController : MonoBehaviour
         }
     }
 
-    private void LightProgressiveControl(HDAdditionalLightData[] lights, float targetIntesity, float previousIntesity)  // TODO: Consider improvement or AsyncTask
-    {
-        for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
-        {
-            if (lights[lightsIndex].intensity > 1f && !lights[lightsIndex].gameObject.activeSelf)
-            {
-                lights[lightsIndex].gameObject.SetActive(true);
-            }
-            else if (lights[lightsIndex].intensity <= 1f && lights[lightsIndex].enabled)
-            {
-                lights[lightsIndex].gameObject.SetActive(false);
-            }
-            if (lights[lightsIndex].intensity != targetIntesity)
-            {
-                lights[lightsIndex].intensity -= (previousIntesity-targetIntesity)/_lightsProgressionDelta;
-            }
-        }
-    }
+    // private void LightProgressiveControl(HDAdditionalLightData[] lights, float targetIntesity, float previousIntesity)  // TODO: Consider improvement or AsyncTask
+    // {
+    //     for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
+    //     {
+    //         if (lights[lightsIndex].intensity > 1f && !lights[lightsIndex].gameObject.activeSelf)
+    //         {
+    //             lights[lightsIndex].gameObject.SetActive(true);
+    //         }
+    //         else if (lights[lightsIndex].intensity <= 1f && lights[lightsIndex].enabled)
+    //         {
+    //             lights[lightsIndex].gameObject.SetActive(false);
+    //         }
+    //         if (lights[lightsIndex].intensity != targetIntesity)
+    //         {
+    //             lights[lightsIndex].intensity -= (previousIntesity-targetIntesity)/_lightsProgressionDelta;
+    //         }
+    //     }
+    // }
 }

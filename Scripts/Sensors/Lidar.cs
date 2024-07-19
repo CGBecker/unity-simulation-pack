@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class Lidar : BaseSensor
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // Array of lidars
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // initialise lider using raycast command for parallel with settings received
+
+    // command method for receiving commands 
+
+    // take reading method to send data back
 }

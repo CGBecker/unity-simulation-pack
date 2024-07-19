@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class Displacement : BaseSensor
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // command if on-demand take reading
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // take reading, on-demand or always running
 }

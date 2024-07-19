@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class BaseSensor : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // generic command method
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // generic take reading method
 }
