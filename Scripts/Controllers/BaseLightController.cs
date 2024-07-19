@@ -15,7 +15,7 @@ public class BaseLightController : MonoBehaviour
     /// Lights to be controlled
     /// OBS.: HDRP only due to use of HDAdditionalLightData and Lumens
     /// </summary>
-    public Light[] Lights;
+    public Light[] Lights;  // Is this needed if we are going to spawn and configure at runtime?
     private HDAdditionalLightData[] _lightsData;
     public float LightsTargetIntensityOn;
     private float _previousLightsIntensity;
