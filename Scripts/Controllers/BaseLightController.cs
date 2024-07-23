@@ -30,7 +30,7 @@ public class BaseLightController : MonoBehaviour
     /// <param name="lights"></param>
     public void InitialiseLights(Light[] lights)
     {
-        if (Lights.Length == 0)
+        if (Lights == null)
         {
             Lights = lights;
         }
@@ -42,6 +42,7 @@ public class BaseLightController : MonoBehaviour
             _lightsData[lightsIndex].intensity = 0f;
             _lightsData[lightsIndex].gameObject.SetActive(false);
         }
+        _tasks = new Task[lights.Length];
     }
 
     /// <summary>
@@ -64,9 +65,12 @@ public class BaseLightController : MonoBehaviour
         _previousLightsIntensity = _lightsData[0].intensity;  // Consider array of cached previous intensities
         for (int lightsIndex = 0; lightsIndex < _lightsData.Length; lightsIndex++)
         {
-            if(_tasks[lightsIndex].Status.Equals(TaskStatus.Running))
+            if (_tasks[lightsIndex] != null)
             {
-                _tasks[lightsIndex].Wait();
+                if(_tasks[lightsIndex].Status.Equals(TaskStatus.Running))
+                {
+                    _tasks[lightsIndex].Wait();
+                }
             }
             _tasks[lightsIndex] = ProgressiveLightControl.ProgressiveLightControlTask(_lightsData[lightsIndex], intensityInLumens, _previousLightsIntensity, _lightsProgressionDelta);
         }
@@ -106,6 +110,7 @@ public static class ProgressiveLightControl
     /// <param name="previousIntesityInLumens"></param>
     /// <param name="lightProgressionDelta"></param>
     /// <returns></returns>
+    [BurstCompile]
    public static async Task ProgressiveLightControlTask(HDAdditionalLightData lightData, float intensityInLumens, float previousIntesityInLumens, uint lightProgressionDelta)
    {
        await Task.Run(() =>
