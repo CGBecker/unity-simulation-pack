@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Burst;
 using System.Linq;
 using System;
+using System.Threading;
 
 /// <summary>
 /// Base light controller class for generic light control
@@ -23,6 +24,8 @@ public class BaseLightController : MonoBehaviour
     private float _previousLightsIntensity;
     private uint _lightsProgressionDelta = 40;  // Default set to 40. Higher value equals slower transition
     private Task[] _tasks;
+    private CancellationTokenSource[] _sources;
+    private CancellationToken[] _tokens;
 
     /// <summary>
     ///  Initialise lights with given config
@@ -30,6 +33,7 @@ public class BaseLightController : MonoBehaviour
     /// <param name="lights"></param>
     public void InitialiseLights(Light[] lights)
     {
+        Debug.Log("Init Lights");
         if (Lights == null)
         {
             Lights = lights;
@@ -43,6 +47,8 @@ public class BaseLightController : MonoBehaviour
             _lightsData[lightsIndex].gameObject.SetActive(false);
         }
         _tasks = new Task[lights.Length];
+        _sources = new CancellationTokenSource[lights.Length];
+        _tokens = new CancellationToken[lights.Length];
     }
 
     /// <summary>
@@ -52,6 +58,7 @@ public class BaseLightController : MonoBehaviour
     /// <param name="lightProgresssiveShiftDelta"></param>
     public void InitialiseLights(Light[] lights, uint lightProgresssiveShiftDelta)
     {
+        Debug.Log("Init Lights with Delta");
         _lightsProgressionDelta = lightProgresssiveShiftDelta;
         InitialiseLights(lights);
     }
@@ -62,17 +69,22 @@ public class BaseLightController : MonoBehaviour
     /// <param name="intensityInLumens"></param>
     public void LightCommand(float intensityInLumens)
     {
-        _previousLightsIntensity = _lightsData[0].intensity;  // Consider array of cached previous intensities
+        Debug.Log("Light Command");
+
+        _previousLightsIntensity = _lightsData[0].intensity;
         for (int lightsIndex = 0; lightsIndex < _lightsData.Length; lightsIndex++)
         {
             if (_tasks[lightsIndex] != null)
             {
                 if(_tasks[lightsIndex].Status.Equals(TaskStatus.Running))
                 {
-                    _tasks[lightsIndex].Wait();
+                    _sources[lightsIndex].Cancel();
+                    Debug.LogWarning("Cancelling light task " + lightsIndex);
                 }
             }
-            _tasks[lightsIndex] = ProgressiveLightControl.ProgressiveLightControlTask(_lightsData[lightsIndex], intensityInLumens, _previousLightsIntensity, _lightsProgressionDelta);
+            _sources[lightsIndex] = new CancellationTokenSource();
+            _tokens[lightsIndex] = _sources[lightsIndex].Token;
+            _tasks[lightsIndex] = Task.Factory.StartNew(() => ProgressiveLightControl.ProgressiveLightControlTask(_lightsData[lightsIndex], intensityInLumens, _previousLightsIntensity, _lightsProgressionDelta), _tokens[lightsIndex]);
         }
     }
 
@@ -83,14 +95,21 @@ public class BaseLightController : MonoBehaviour
     /// <param name="intensityInLumens"></param>
     public void LightCommand(HDAdditionalLightData lightData, float intensityInLumens)
     {
+        Debug.Log("Light command individual light");
         _previousLightsIntensity = lightData.intensity;  // Consider array of cached previous intensities
         if(_lightsData.Contains(lightData))
         {
+            Debug.Log("LightData exists in array of lightDatas");
             int index = Array.FindIndex(_lightsData, row => _lightsData.Contains(lightData));
-            if(_tasks[index].Status.Equals(TaskStatus.Running))
+            if (_tasks[index] != null)
             {
-                _tasks[index].Wait();
+                if(_tasks[index].Status.Equals(TaskStatus.Running))
+                {
+                    // _tasks[index].Wait();
+                    _tasks[index].Dispose();
+                }
             }
+            Debug.Log("Run task for individual light");
             _tasks[index] = ProgressiveLightControl.ProgressiveLightControlTask(_lightsData[index], intensityInLumens, _previousLightsIntensity, _lightsProgressionDelta);
         }
     }
@@ -111,14 +130,22 @@ public static class ProgressiveLightControl
     /// <param name="lightProgressionDelta"></param>
     /// <returns></returns>
     [BurstCompile]
-   public static async Task ProgressiveLightControlTask(HDAdditionalLightData lightData, float intensityInLumens, float previousIntesityInLumens, uint lightProgressionDelta)
-   {
-       await Task.Run(() =>
-       {
-            for (uint elapsedDelta = lightProgressionDelta; elapsedDelta > 0; --elapsedDelta)
+    public static async Task ProgressiveLightControlTask(HDAdditionalLightData lightData, float intensityInLumens, float previousIntesityInLumens, uint lightProgressionDelta)
+    {
+        Debug.Log("Task started");
+        for (uint elapsedDelta = lightProgressionDelta; elapsedDelta > 0; --elapsedDelta)
+        {
+            Debug.Log("Task loop " + previousIntesityInLumens  + "-" + intensityInLumens+")/" + lightProgressionDelta + "-" + lightData.intensity);
+            lightData.intensity = math.abs(((previousIntesityInLumens-intensityInLumens)/lightProgressionDelta)-lightData.intensity);
+            if (lightData.intensity >= 1f)
             {
-                lightData.intensity = math.abs(((previousIntesityInLumens-intensityInLumens)/lightProgressionDelta)-lightData.intensity);
+                lightData.gameObject.SetActive(true);
             }
-       });
-   }
+            else
+            {
+                lightData.gameObject.SetActive(false);
+            }
+            await Task.Yield();
+        }
+    }
 }

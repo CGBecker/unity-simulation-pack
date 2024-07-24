@@ -91,8 +91,6 @@ public class BaseVehicleController : MonoBehaviour
         {
             ThrottleCommand(WheelsMotors, ForwardTorque);
         }
-
-        Debug.Log(WheelsWithBrakes[0].velocity);
         if (_toggleBrakesOrReverse)  // TODO: Improve braking system with smarter call to brakes command
         {
             for (int brakesIndex = 0; brakesIndex < WheelsWithBrakes.Length; brakesIndex++)
