@@ -6,19 +6,19 @@ public class MultiWheelVehicleController : BaseVehicleController
 {
     public Light[] HeadLights;
     [Tooltip("Target intensity of headlights when turned on (In Lumens).")]
-    public float HeadLightsIntensity;
+    public float[] HeadLightsIntensity;
     private bool _headLightsSwitch = false;
     private BaseLightController _headLightsController;
 
     public Light[] TailAndBrakeLights;
     [Tooltip("Target intensity of Tail lights when turned on (In Lumens). Intensity will be doubled under braking.")]
-    public float TailAndBrakeLightsIntensity;
+    public float[] TailAndBrakeLightsIntensity;
     private bool _tailAndBrakeLightsSwitch = false;
     private BaseLightController _tailAndBrakeLightsController;
 
     public Light[] ReverseLights;
     [Tooltip("Target intensity of reverse lights when turned on (In Lumens).")]
-    public float ReverseLightsIntensity;
+    public float[] ReverseLightsIntensity;
     private BaseLightController _reverseLightsController;
 
     protected override void Start()
@@ -26,16 +26,13 @@ public class MultiWheelVehicleController : BaseVehicleController
         base.Start();
 
         _headLightsController = gameObject.AddComponent<BaseLightController>();
-        _headLightsController.LightsTargetIntensityOn = HeadLightsIntensity;
-        _headLightsController.InitialiseLights(HeadLights);
+        _headLightsController.InitialiseLights(HeadLights, false);
 
         _tailAndBrakeLightsController = gameObject.AddComponent<BaseLightController>();
-        _tailAndBrakeLightsController.LightsTargetIntensityOn = TailAndBrakeLightsIntensity;
-        _tailAndBrakeLightsController.InitialiseLights(TailAndBrakeLights);
+        _tailAndBrakeLightsController.InitialiseLights(TailAndBrakeLights, false);
 
         _reverseLightsController = gameObject.AddComponent<BaseLightController>();
-        _reverseLightsController.LightsTargetIntensityOn = ReverseLightsIntensity;
-        _reverseLightsController.InitialiseLights(ReverseLights);
+        _reverseLightsController.InitialiseLights(ReverseLights, false);
     }
 
     protected override void Update()

@@ -14,66 +14,92 @@ using System.Threading;
 /// </summary>
 public class BaseLightController : MonoBehaviour
 {
-    /// <summary>
-    /// Lights to be controlled
-    /// OBS.: HDRP only due to use of HDAdditionalLightData and Lumens
-    /// </summary>
-    public Light[] Lights;  // Is this needed if we are going to spawn and configure at runtime?
     private HDAdditionalLightData[] _lightsData;
-    public float LightsTargetIntensityOn;
-    private float _previousLightsIntensity;
-    private uint _lightsProgressionDelta = 40;  // Default set to 40. Higher value equals slower transition
+    private float[] _previousLightsIntensity;
     private Task[] _tasks;
     private CancellationTokenSource[] _sources;
     private CancellationToken[] _tokens;
 
     /// <summary>
-    ///  Initialise lights with given config
+    /// 
     /// </summary>
     /// <param name="lights"></param>
-    public void InitialiseLights(Light[] lights)
+    /// <param name="enableProgressiveDeltaSupport">Enables progressive light control support. (OBS.: Experimental, may cause overhead and instability)</param>
+    public void InitialiseLights(Light[] lights, bool enableProgressiveDeltaSupport)
     {
-        Debug.Log("Init Lights");
-        if (Lights == null)
-        {
-            Lights = lights;
-        }
-        _lightsData = new HDAdditionalLightData[Lights.Length];
+        _lightsData = new HDAdditionalLightData[lights.Length];
         for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
         {
-            _lightsData[lightsIndex] = Lights[lightsIndex].GetComponent<HDAdditionalLightData>();
+            _lightsData[lightsIndex] = lights[lightsIndex].GetComponent<HDAdditionalLightData>();
             _lightsData[lightsIndex].lightUnit = LightUnit.Lumen;
             _lightsData[lightsIndex].intensity = 0f;
             _lightsData[lightsIndex].gameObject.SetActive(false);
         }
-        _tasks = new Task[lights.Length];
-        _sources = new CancellationTokenSource[lights.Length];
-        _tokens = new CancellationToken[lights.Length];
+        if (enableProgressiveDeltaSupport)
+        {
+            _tasks = new Task[lights.Length];
+            _sources = new CancellationTokenSource[lights.Length];
+            _tokens = new CancellationToken[lights.Length];
+        }
     }
 
-    /// <summary>
-    /// Initialise lights with given config and delta for transition speed (Higher value equals slower transition)
-    /// </summary>
-    /// <param name="lights"></param>
-    /// <param name="lightProgresssiveShiftDelta"></param>
-    public void InitialiseLights(Light[] lights, uint lightProgresssiveShiftDelta)
+    private void InstantLightSet(HDAdditionalLightData lightData, float intensityInLumens)
     {
-        Debug.Log("Init Lights with Delta");
-        _lightsProgressionDelta = lightProgresssiveShiftDelta;
-        InitialiseLights(lights);
+        lightData.intensity = intensityInLumens;
+        if (intensityInLumens < 1f)
+        {
+            lightData.gameObject.SetActive(false);
+        }
+        else
+        {
+            lightData.gameObject.SetActive(true);
+        }
     }
 
     /// <summary>
-    /// Command method for setting light intensity target for all lights
+    /// Instant light shift command for individual lights
+    /// </summary>
+    /// <param name="intensities"></param>
+    public void LightCommand(float[] intensities)
+    {
+        if (intensities.Length == _lightsData.Length)
+        {
+            for (uint lightsIndex = 0; lightsIndex < intensities.Length; ++lightsIndex)
+            {
+                InstantLightSet(_lightsData[lightsIndex], intensities[lightsIndex]);
+            }
+        }
+        else
+        {
+            Debug.LogError("Number of intensity targets provided do not match number of light devices!");
+        }
+    }
+
+    /// <summary>
+    /// Instant light command for all lights at once
+    /// </summary>
+    /// <param name="intensity"></param>
+    public void LightCommand(float intensity)
+    {
+        for (uint lightsIndex = 0; lightsIndex < _lightsData.Length; ++lightsIndex)
+        {
+            InstantLightSet(_lightsData[lightsIndex], intensity);
+        }
+    }
+
+    /// <summary>
+    /// Command method for setting light intensity target for all lights progressively
+    /// Indexes must be tied for all arrays (e.g. Light[1].intensity = intensityInLumens[1])
+    /// OBS.: Will take a certain time to reach target (lightsProgressionDelta*Time.fixedDeltaTime)
     /// </summary>
     /// <param name="intensityInLumens"></param>
-    public void LightCommand(float intensityInLumens)
+    /// <param name="lightsProgressionDelta"></param>
+    public void LightCommand(float[] intensityInLumens, uint[] lightsProgressionDelta)
     {
         Debug.Log("Light Command");
-
-        _previousLightsIntensity = _lightsData[0].intensity;
         for (int lightsIndex = 0; lightsIndex < _lightsData.Length; lightsIndex++)
         {
+            _previousLightsIntensity[lightsIndex] = _lightsData[lightsIndex].intensity;
             if (_tasks[lightsIndex] != null)
             {
                 if(_tasks[lightsIndex].Status.Equals(TaskStatus.Running))
@@ -84,36 +110,14 @@ public class BaseLightController : MonoBehaviour
             }
             _sources[lightsIndex] = new CancellationTokenSource();
             _tokens[lightsIndex] = _sources[lightsIndex].Token;
-            _tasks[lightsIndex] = Task.Factory.StartNew(() => ProgressiveLightControl.ProgressiveLightControlTask(_lightsData[lightsIndex], intensityInLumens, _previousLightsIntensity, _lightsProgressionDelta), _tokens[lightsIndex]);
+            _tasks[lightsIndex] = Task.Factory.StartNew(() => ProgressiveLightControl.ProgressiveLightControlTask(
+                                                                                _lightsData[lightsIndex],
+                                                                                intensityInLumens[lightsIndex],
+                                                                                _previousLightsIntensity[lightsIndex],
+                                                                                lightsProgressionDelta[lightsIndex]),
+                                                                                _tokens[lightsIndex]);
         }
     }
-
-    /// <summary>
-    /// Command method for setting light intensity target for one light
-    /// </summary>
-    /// <param name="lightData"></param>
-    /// <param name="intensityInLumens"></param>
-    public void LightCommand(HDAdditionalLightData lightData, float intensityInLumens)
-    {
-        Debug.Log("Light command individual light");
-        _previousLightsIntensity = lightData.intensity;  // Consider array of cached previous intensities
-        if(_lightsData.Contains(lightData))
-        {
-            Debug.Log("LightData exists in array of lightDatas");
-            int index = Array.FindIndex(_lightsData, row => _lightsData.Contains(lightData));
-            if (_tasks[index] != null)
-            {
-                if(_tasks[index].Status.Equals(TaskStatus.Running))
-                {
-                    // _tasks[index].Wait();
-                    _tasks[index].Dispose();
-                }
-            }
-            Debug.Log("Run task for individual light");
-            _tasks[index] = ProgressiveLightControl.ProgressiveLightControlTask(_lightsData[index], intensityInLumens, _previousLightsIntensity, _lightsProgressionDelta);
-        }
-    }
-
 }
 
 /// <summary>
