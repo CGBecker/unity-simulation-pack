@@ -4,5 +4,13 @@ using UnityEngine;
 
 public class Bump : BaseSensor
 {
-    // take reading only for one or more bump sensors
+    public override void InitialiseSensor()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void TakeReading()
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Unity.Mathematics;
 using Unity.Burst;
 
-public class BaseMotor : MonoBehaviour
+public class BaseMotor : BaseActuator
 {
     // Set array of motors to be controlled and reprogrammed
 
@@ -13,6 +13,15 @@ public class BaseMotor : MonoBehaviour
 
     // Command method to receive commands in torque or friction to initialise tasks
     // Must be able to stop previous tasks
+    public override void Command()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void TakeReading()
+    {
+        throw new System.NotImplementedException();
+    }
 
     // Tasks to perform actions
 }

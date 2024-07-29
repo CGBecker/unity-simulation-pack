@@ -4,7 +4,13 @@ using UnityEngine;
 
 public class Gyroscope : BaseSensor
 {
-    // command for on-demand
+    public override void InitialiseSensor()
+    {
+        throw new System.NotImplementedException();
+    }
 
-    // take reading on-demand or not
+    public override void TakeReading()
+    {
+        throw new System.NotImplementedException();
+    }
 }
