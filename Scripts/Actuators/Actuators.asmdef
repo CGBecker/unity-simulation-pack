@@ -2,7 +2,8 @@
     "name": "Actuators",
     "rootNamespace": "",
     "references": [
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:9cd1dd7e576a5fe4abc39f17f00b804d"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

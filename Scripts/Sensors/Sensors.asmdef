@@ -1,3 +1,16 @@
 {
-	"name": "Sensors"
+    "name": "Sensors",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9cd1dd7e576a5fe4abc39f17f00b804d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

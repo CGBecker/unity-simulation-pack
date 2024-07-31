@@ -17,69 +17,90 @@ public class Bootstrap : MonoBehaviour
 
     // read urdf or XML description for building vehicle
 
-    private Dictionary<string, List<string>> _labeledKeys;
+    /// <summary>
+    /// Dictionary to store the addressables' address/keys separated per label
+    /// </summary>
+    private Dictionary<string, List<string>> _labeledKeys = new Dictionary<string, List<string>>();
 
+    /// <summary>
+    /// Starting bootstrap behaviour
+    /// </summary>
     void Start()
     {
-        LoadAndListLabels();
-
-        foreach (string label in _labeledKeys.Keys)
-        {
-            ListAddressablesByLabel(label);
-        }
+        InitialiseAddressablesLoading();
     }
 
+    /// <summary>
+    /// Start per-label addressables loading/listing
+    /// </summary>
+    /// <param name="label"></param>
     private void ListAddressablesByLabel(string label)
     {
         Addressables.LoadResourceLocationsAsync(label).Completed += OnResourceLocationsLoaded;
     }
 
+    /// <summary>
+    /// Actual listing of addressables' addresses per label
+    /// </summary>
+    /// <param name="handle"></param>
     private void OnResourceLocationsLoaded(AsyncOperationHandle<IList<IResourceLocation>> handle)
     {
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
             IList<IResourceLocation> locations = handle.Result;
-            Debug.Log($"Found {locations.Count} addressables per label");
+            LoggingSingleton.Logging.Log($"Found {locations.Count} addressables per label");
 
             foreach (IResourceLocation location in locations)
             {
-                Debug.Log($"Addressable: {location.PrimaryKey}");
+                LoggingSingleton.Logging.Log($"Addressable: {location.PrimaryKey}");
             }
 
-            foreach (string label in _labeledKeys.Keys)
+            List<string> keys = _labeledKeys.Keys.ToList();
+            foreach (string label in keys)
             {
                 _labeledKeys[label] = locations.Select(location => location.PrimaryKey).ToList();
             }
         }
         else
         {
-            Debug.LogError("Failed to load resource locations.");
+            LoggingSingleton.Logging.LogError("Failed to load resource locations.");
         }
         Addressables.Release(handle);
     }
 
-    private void LoadAndListLabels()
+    /// <summary>
+    /// Start addressables loading, beginning with LabelsList.asset Scriptable Object
+    /// then proceeding to load labels listed in said Scriptable Object
+    /// </summary>
+    private void InitialiseAddressablesLoading()
     {
         Addressables.LoadAssetAsync<LabelsList>("Assets/Configs/LabelsList.asset").Completed += OnLabelsLoaded;
-
-        // continue loading from here?
     }
 
+    /// <summary>
+    /// Loading labels list from Scriptable Object in order to start loading of addressables
+    /// separated per label
+    /// </summary>
+    /// <param name="handle"></param>
     private void OnLabelsLoaded(AsyncOperationHandle<LabelsList> handle)
     {
         if (handle.Status == AsyncOperationStatus.Succeeded)
         {
             LabelsList labelData = handle.Result;
 
-            Debug.Log("Addressable Labels:");
+            LoggingSingleton.Logging.Log("Addressable Labels:");
             foreach (string label in labelData.labels)
             {
                 _labeledKeys.Add(label, null);
             }
+            foreach (string label in _labeledKeys.Keys)
+            {
+                ListAddressablesByLabel(label);
+            }
         }
         else
         {
-            Debug.LogError("Failed to load label data.");
+            LoggingSingleton.Logging.LogError("Failed to load label data.");
         }
         Addressables.Release(handle);
     }
