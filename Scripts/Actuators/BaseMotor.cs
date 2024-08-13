@@ -13,12 +13,21 @@ public class BaseMotor : BaseActuator
 
     // Command method to receive commands in torque or friction to initialise tasks
     // Must be able to stop previous tasks
-    public override void Command()
+    public override void Command(float targetTorque)
+    {
+        throw new System.NotImplementedException();
+    }
+    public override void Command(float[] targetTorques)
     {
         throw new System.NotImplementedException();
     }
 
-    public override void TakeReading()
+    public override float[] TakeReading()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override float TakeReading(uint index)
     {
         throw new System.NotImplementedException();
     }

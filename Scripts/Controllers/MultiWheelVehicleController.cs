@@ -9,28 +9,28 @@ public class MultiWheelVehicleController : BaseVehicleController
     [Tooltip("Target intensity of headlights when turned on (In Lumens).")]
     public float[] HeadLightsIntensity;
     private bool _headLightsSwitch = false;
-    private BaseLightController _headLightsController;
+    private BaseLightActuator _headLightsController;
 
     public Light[] TailAndBrakeLights;
     [Tooltip("Target intensity of Tail lights when turned on (In Lumens). Intensity will be doubled under braking.")]
     public float[] TailAndBrakeLightsIntensity;
     private float[] _brakeLightsIntensity;
     private bool _tailAndBrakeLightsSwitch = false;
-    private BaseLightController _tailAndBrakeLightsController;
+    private BaseLightActuator _tailAndBrakeLightsController;
 
     public Light[] ReverseLights;
     [Tooltip("Target intensity of reverse lights when turned on (In Lumens).")]
     public float[] ReverseLightsIntensity;
-    private BaseLightController _reverseLightsController;
+    private BaseLightActuator _reverseLightsController;
 
     protected override void Start()
     {
         base.Start();
 
-        _headLightsController = gameObject.AddComponent<BaseLightController>();
+        _headLightsController = gameObject.AddComponent<BaseLightActuator>();
         _headLightsController.InitialiseLights(HeadLights, false);
 
-        _tailAndBrakeLightsController = gameObject.AddComponent<BaseLightController>();
+        _tailAndBrakeLightsController = gameObject.AddComponent<BaseLightActuator>();
         _tailAndBrakeLightsController.InitialiseLights(TailAndBrakeLights, false);
         _brakeLightsIntensity = new float[TailAndBrakeLightsIntensity.Length];
         for (uint lightsIndex = 0; lightsIndex < TailAndBrakeLightsIntensity.Length; lightsIndex++)
@@ -38,7 +38,7 @@ public class MultiWheelVehicleController : BaseVehicleController
             _brakeLightsIntensity[lightsIndex] = TailAndBrakeLightsIntensity[lightsIndex]*2f;
         }
 
-        _reverseLightsController = gameObject.AddComponent<BaseLightController>();
+        _reverseLightsController = gameObject.AddComponent<BaseLightActuator>();
         _reverseLightsController.InitialiseLights(ReverseLights, false);
     }
 
@@ -50,52 +50,52 @@ public class MultiWheelVehicleController : BaseVehicleController
         {
             if (_headLightsSwitch)
             {
-                _headLightsController.LightCommand(0f);
+                _headLightsController.Command(0f);
                 _headLightsSwitch = false;
             }
             else
             {
-                _headLightsController.LightCommand(HeadLightsIntensity);
+                _headLightsController.Command(HeadLightsIntensity);
                 _headLightsSwitch = true;
             }
             if (_tailAndBrakeLightsSwitch)
             {
                 if (!_toggleBrakes)
                 {
-                    _tailAndBrakeLightsController.LightCommand(0f);
+                    _tailAndBrakeLightsController.Command(0f);
                 }
                 _tailAndBrakeLightsSwitch = false;
             }
             else
             {
-                _tailAndBrakeLightsController.LightCommand(TailAndBrakeLightsIntensity);
+                _tailAndBrakeLightsController.Command(TailAndBrakeLightsIntensity);
                 _tailAndBrakeLightsSwitch = true;
             }
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            _tailAndBrakeLightsController.LightCommand(_brakeLightsIntensity);
+            _tailAndBrakeLightsController.Command(_brakeLightsIntensity);
         }
         if (Input.GetKeyUp(KeyCode.Space))
         {
             if (_tailAndBrakeLightsSwitch)
             {
-                _tailAndBrakeLightsController.LightCommand(TailAndBrakeLightsIntensity);
+                _tailAndBrakeLightsController.Command(TailAndBrakeLightsIntensity);
             }
             else
             {
-                _tailAndBrakeLightsController.LightCommand(0f);
+                _tailAndBrakeLightsController.Command(0f);
             }
         }
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            _reverseLightsController.LightCommand(ReverseLightsIntensity);
+            _reverseLightsController.Command(ReverseLightsIntensity);
         }
         if (Input.GetKeyUp(KeyCode.S))
         {
-            _reverseLightsController.LightCommand(0f);
+            _reverseLightsController.Command(0f);
         }
     }
 

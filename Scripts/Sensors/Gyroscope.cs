@@ -9,7 +9,11 @@ public class Gyroscope : BaseSensor
         throw new System.NotImplementedException();
     }
 
-    public override void TakeReading()
+    public override float[] TakeReading()
+    {
+        throw new System.NotImplementedException();
+    }
+    public override float TakeReading(uint index)
     {
         throw new System.NotImplementedException();
     }

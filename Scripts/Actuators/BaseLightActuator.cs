@@ -12,7 +12,7 @@ using System.Threading;
 /// <summary>
 /// Base light controller class for generic light control
 /// </summary>
-public class BaseLightController : MonoBehaviour
+public class BaseLightActuator : BaseActuator
 {
     private HDAdditionalLightData[] _lightsData;
     private float[] _previousLightsIntensity;
@@ -60,7 +60,7 @@ public class BaseLightController : MonoBehaviour
     /// Instant light shift command for individual lights
     /// </summary>
     /// <param name="intensities"></param>
-    public void LightCommand(float[] intensities)
+    public override void Command(float[] intensities)
     {
         if (intensities.Length == _lightsData.Length)
         {
@@ -79,12 +79,22 @@ public class BaseLightController : MonoBehaviour
     /// Instant light command for all lights at once
     /// </summary>
     /// <param name="intensity"></param>
-    public void LightCommand(float intensity)
+    public override void Command(float intensity)
     {
         for (uint lightsIndex = 0; lightsIndex < _lightsData.Length; ++lightsIndex)
         {
             InstantLightSet(_lightsData[lightsIndex], intensity);
         }
+    }
+
+    public override float[] TakeReading()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override float TakeReading(uint index)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>

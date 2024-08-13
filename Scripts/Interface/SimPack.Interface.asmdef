@@ -1,5 +1,5 @@
 {
-    "name": "Sensors",
+    "name": "SimPack.Interface",
     "rootNamespace": "",
     "references": [
         "GUID:9cd1dd7e576a5fe4abc39f17f00b804d"

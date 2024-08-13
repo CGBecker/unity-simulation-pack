@@ -13,7 +13,11 @@ public class CameraDevice : BaseSensor
     }
 
     // Command for custom render if needed
-    public override void TakeReading()
+    public override float[] TakeReading()
+    {
+        throw new System.NotImplementedException();
+    }
+    public override float TakeReading(uint index)
     {
         throw new System.NotImplementedException();
     }

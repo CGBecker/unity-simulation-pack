@@ -6,5 +6,6 @@ public abstract class BaseSensor : MonoBehaviour
 {
     public abstract void InitialiseSensor();
 
-    public abstract void TakeReading();
+    public abstract float[] TakeReading();
+    public abstract float TakeReading(uint index);
 }

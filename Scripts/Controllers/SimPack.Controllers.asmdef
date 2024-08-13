@@ -1,0 +1,21 @@
+{
+    "name": "SimPack.Controllers",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:457756d89b35d2941b3e7b37b4ece6f1",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:9cd1dd7e576a5fe4abc39f17f00b804d",
+        "GUID:b2aa7691005a92e44a602255384ece23",
+        "GUID:6c4efc3819c647643ab2d3957a6c830f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

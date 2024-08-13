@@ -1,10 +1,7 @@
 {
-    "name": "Controllers",
+    "name": "SimPack.Sensors",
     "rootNamespace": "",
     "references": [
-        "GUID:d8b63aba1907145bea998dd612889d6b",
-        "GUID:457756d89b35d2941b3e7b37b4ece6f1",
-        "GUID:2665a8d13d1b3f18800f46e256720795",
         "GUID:9cd1dd7e576a5fe4abc39f17f00b804d"
     ],
     "includePlatforms": [],

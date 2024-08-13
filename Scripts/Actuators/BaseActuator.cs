@@ -4,7 +4,9 @@ using UnityEngine;
 
 public abstract class BaseActuator : MonoBehaviour
 {
-    public abstract void Command();
+    public abstract void Command(float command);
+    public abstract void Command(float[] command);
 
-    public abstract void TakeReading();
+    public abstract float TakeReading(uint index);
+    public abstract float[] TakeReading();
 }
