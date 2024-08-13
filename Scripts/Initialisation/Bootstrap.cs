@@ -27,6 +27,40 @@ public class Bootstrap : MonoBehaviour
     /// </summary>
     void Start()
     {
+        uint maxDelta = 40;  // Default maxDelta
+        uint physicsStep = 4;
+        string[] args = System.Environment.GetCommandLineArgs();
+
+        for (int i = 0; i < args.Length; i+=2)
+        {
+           string argument = args[i];
+
+            if (argument == "--MaxDelta" || argument == "-md")
+            {
+                bool success = uint.TryParse(args[i+1], out maxDelta);
+                if (!success)
+                {
+                    Debug.LogError("Invalid MaxDelta value from argument!");
+                }
+            }
+
+            if (argument == "--PhysicsStep" || argument == "-ps")
+            {
+                bool success = uint.TryParse(args[i+1], out physicsStep);
+                if (!success)
+                {
+                    Debug.LogError("Invalid PhysicsStep value from argument!");
+                }
+            }
+        }
+
+         if (SimTimeManager.Instance == null)
+        {
+            GameObject singletonObject = new GameObject("GameManager");
+            singletonObject.AddComponent<SimTimeManager>();
+        }
+        SimTimeManager.Instance.InitializeSettings(maxDelta, physicsStep);
+
         InitialiseAddressablesLoading();
     }
 

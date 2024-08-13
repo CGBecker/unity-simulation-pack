@@ -57,34 +57,37 @@ public class BaseLightActuator : BaseActuator
     }
 
     /// <summary>
-    /// Instant light shift command for individual lights
+    /// Instant light command for one or all lights at once
     /// </summary>
-    /// <param name="intensities"></param>
-    public override void Command(float[] intensities)
+    /// <param name="intensity"></param>
+    public override bool Command<T>(T intensity)
     {
-        if (intensities.Length == _lightsData.Length)
+        if (intensity is float intensityInFloat)
         {
-            for (uint lightsIndex = 0; lightsIndex < intensities.Length; ++lightsIndex)
+            for (uint lightsIndex = 0; lightsIndex < _lightsData.Length; ++lightsIndex)
             {
-                InstantLightSet(_lightsData[lightsIndex], intensities[lightsIndex]);
+                InstantLightSet(_lightsData[lightsIndex], intensityInFloat);
+            }
+        }
+        else if (intensity is float[] intensitiesInFloatArray)
+        {
+            if (intensitiesInFloatArray.Length == _lightsData.Length)
+            {
+                for (uint lightsIndex = 0; lightsIndex < intensitiesInFloatArray.Length; ++lightsIndex)
+                {
+                    InstantLightSet(_lightsData[lightsIndex], intensitiesInFloatArray[lightsIndex]);
+                }
+            }
+            else
+            {
+                Debug.LogError("Number of intensity targets provided do not match number of light devices!");
             }
         }
         else
         {
-            Debug.LogError("Number of intensity targets provided do not match number of light devices!");
+            Debug.LogError("ERROR: Unexpected type for light command. Expected: float or float[]. Received: " + typeof(T) );
         }
-    }
-
-    /// <summary>
-    /// Instant light command for all lights at once
-    /// </summary>
-    /// <param name="intensity"></param>
-    public override void Command(float intensity)
-    {
-        for (uint lightsIndex = 0; lightsIndex < _lightsData.Length; ++lightsIndex)
-        {
-            InstantLightSet(_lightsData[lightsIndex], intensity);
-        }
+        return true;
     }
 
     public override float[] TakeReading()
