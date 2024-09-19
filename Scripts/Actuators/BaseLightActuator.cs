@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using System.Threading.Tasks;
-using Unity.Mathematics;
-using Unity.Burst;
-using System.Linq;
 using System;
 using System.Threading;
 
@@ -100,69 +97,4 @@ public class BaseLightActuator : BaseActuator
         throw new NotImplementedException();
     }
 
-    /// <summary>
-    /// Command method for setting light intensity target for all lights progressively
-    /// Indexes must be tied for all arrays (e.g. Light[1].intensity = intensityInLumens[1])
-    /// OBS.: Will take a certain time to reach target (lightsProgressionDelta*Time.fixedDeltaTime)
-    /// </summary>
-    /// <param name="intensityInLumens"></param>
-    /// <param name="lightsProgressionDelta"></param>
-    public void LightCommand(float[] intensityInLumens, uint[] lightsProgressionDelta)
-    {
-        Debug.Log("Light Command");
-        for (int lightsIndex = 0; lightsIndex < _lightsData.Length; lightsIndex++)
-        {
-            _previousLightsIntensity[lightsIndex] = _lightsData[lightsIndex].intensity;
-            if (_tasks[lightsIndex] != null)
-            {
-                if(_tasks[lightsIndex].Status.Equals(TaskStatus.Running))
-                {
-                    _sources[lightsIndex].Cancel();
-                    Debug.LogWarning("Cancelling light task " + lightsIndex);
-                }
-            }
-            _sources[lightsIndex] = new CancellationTokenSource();
-            _tokens[lightsIndex] = _sources[lightsIndex].Token;
-            _tasks[lightsIndex] = Task.Factory.StartNew(() => ProgressiveLightControl.ProgressiveLightControlTask(
-                                                                                _lightsData[lightsIndex],
-                                                                                intensityInLumens[lightsIndex],
-                                                                                _previousLightsIntensity[lightsIndex],
-                                                                                lightsProgressionDelta[lightsIndex]),
-                                                                                _tokens[lightsIndex]);
-        }
-    }
-}
-
-/// <summary>
-/// Light control static class for progressive behaviour of light device
-/// </summary>
-public static class ProgressiveLightControl
-{
-    /// <summary>
-    /// Light control Task to progressively reach target light intensity from any non-negative value
-    /// </summary>
-    /// <param name="lightData"></param>
-    /// <param name="intensityInLumens"></param>
-    /// <param name="previousIntesityInLumens"></param>
-    /// <param name="lightProgressionDelta"></param>
-    /// <returns></returns>
-    [BurstCompile]
-    public static async Task ProgressiveLightControlTask(HDAdditionalLightData lightData, float intensityInLumens, float previousIntesityInLumens, uint lightProgressionDelta)
-    {
-        Debug.Log("Task started");
-        for (uint elapsedDelta = lightProgressionDelta; elapsedDelta > 0; --elapsedDelta)
-        {
-            Debug.Log("Task loop " + previousIntesityInLumens  + "-" + intensityInLumens+")/" + lightProgressionDelta + "-" + lightData.intensity);
-            lightData.intensity = math.abs(((previousIntesityInLumens-intensityInLumens)/lightProgressionDelta)-lightData.intensity);
-            if (lightData.intensity >= 1f)
-            {
-                lightData.gameObject.SetActive(true);
-            }
-            else
-            {
-                lightData.gameObject.SetActive(false);
-            }
-            await Task.Yield();
-        }
-    }
 }
