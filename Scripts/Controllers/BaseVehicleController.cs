@@ -9,8 +9,6 @@ public class BaseVehicleController : MonoBehaviour
     public ArticulationBody[] WheelsMotors;
     public float ForwardTorque;
     public float ReverseTorque;
-    protected bool _toggleThrottle = false;
-    protected bool _toggleReverse = false;
 
     public ArticulationBody[] WheelsSuspensions;
 
@@ -22,7 +20,16 @@ public class BaseVehicleController : MonoBehaviour
     public ArticulationBody[] WheelsWithBrakes;
     public float BrakesTorque;
     protected float[] _originalFrictions;
-    protected bool _toggleBrakes = false;
+
+    public VehicleState CurrentState;
+
+    public enum VehicleState
+    {
+        Idle,
+        Accelerating,
+        Reversing,
+        Braking
+    }
 
     /// <summary>
     /// Start() runs basic initialisation of base devices
@@ -64,30 +71,19 @@ public class BaseVehicleController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S))
         {
-            _toggleThrottle = true;
+            CurrentState = VehicleState.Accelerating;
         }
         else if (Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.W))
         {
-            _toggleReverse = true;
+            CurrentState = VehicleState.Reversing;
         }
-        else if (Input.GetKey(KeyCode.S) && Input.GetKey(KeyCode.W))
+        else if (Input.GetKey(KeyCode.Space))
         {
-            _toggleThrottle = false;
-            _toggleReverse = false;
-        }        
-        else
-        {
-            _toggleThrottle = false;
-            _toggleReverse = false;
-        }
-
-        if (Input.GetKey(KeyCode.Space))
-        {
-            _toggleBrakes = true;
+            CurrentState = VehicleState.Braking;
         }
         else
         {
-            _toggleBrakes = false;
+            CurrentState = VehicleState.Idle;
         }
 
         if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
@@ -110,15 +106,15 @@ public class BaseVehicleController : MonoBehaviour
     /// </summary>
     protected virtual void FixedUpdate()
     {
-        if (_toggleThrottle)
+        if (CurrentState == VehicleState.Accelerating)
         {
             ThrottleCommand(WheelsMotors, ForwardTorque);
         }
-        if (_toggleReverse)
+        if (CurrentState == VehicleState.Reversing)
         {
             ThrottleCommand(WheelsMotors, ReverseTorque*-1);
         }
-        if (_toggleBrakes)
+        if (CurrentState == VehicleState.Braking)
         {
             BrakesCommand(WheelsWithBrakes, BrakesTorque);
         }

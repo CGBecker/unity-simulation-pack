@@ -60,7 +60,7 @@ public class MultiWheelVehicleController : BaseVehicleController
             }
             if (_tailAndBrakeLightsSwitch)
             {
-                if (!_toggleBrakes)
+                if (CurrentState != VehicleState.Braking)
                 {
                     _tailAndBrakeLightsController.Command(0f);
                 }
