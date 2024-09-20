@@ -4,7 +4,7 @@ Simulation package for Unity containing highly accurate physics, articulation bo
 - Multi-wheel vehicles (3+ wheels with independent control via torque)
 - Two wheel vehicles [WIP]
 - Illumination system (Configurable and controllable light system)
-- Lidar [WIP]
+- Lidar
 - Bump sensor [WIP]
 - Gyro [WIP]
 - Displacement sensor [WIP]
