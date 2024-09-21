@@ -48,13 +48,13 @@ public class Lidar : BaseSensor
     // command method for receiving commands (On-demand?)
 
     // take reading method to send data back
-    public override float[] TakeReading()
+    public override T TakeReading<T>()
     {
         ScheduleRaycasts();
 
-        return results;
+        return (T)(object)results;
     }
-    public override float TakeReading(uint index)
+    public override T TakeReading<T>(uint index)
     {
         throw new System.NotImplementedException();
     }

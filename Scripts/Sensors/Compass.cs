@@ -10,11 +10,11 @@ public class Compass : BaseSensor
         throw new System.NotImplementedException();
     }
 
-    public override float[] TakeReading()
+    public override T TakeReading<T>()
     {
         throw new System.NotImplementedException();
     }
-    public override float TakeReading(uint index)
+    public override T TakeReading<T>(uint index)
     {
         throw new System.NotImplementedException();
     }

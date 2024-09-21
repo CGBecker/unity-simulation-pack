@@ -24,7 +24,7 @@ public class Displacement : BaseSensor
     /// Take reading of displacement sensor array
     /// </summary>
     /// <returns>Array of floats with distances of displacement per sensor in meters</returns>
-    public override float[] TakeReading()
+    public override T TakeReading<T>()
     {
         float[] displacementsInMeters = new float[DisplacementObjects.Length];
         Vector3 tempPose;
@@ -35,7 +35,7 @@ public class Displacement : BaseSensor
             previousPositions[i] = DisplacementObjects[i].position;
         }
 
-        return displacementsInMeters;
+        return (T)(object)displacementsInMeters;
     }
 
     /// <summary>
@@ -43,12 +43,12 @@ public class Displacement : BaseSensor
     /// </summary>
     /// <param name="index"></param>
     /// <returns>A float with the distance of displacement in meters</returns>
-    public override float TakeReading(uint index)
+    public override T TakeReading<T>(uint index)
     {
         Vector3 tempPose = DisplacementObjects[index].position - previousPositions[index];
         float displacementsInMeters = tempPose.magnitude;
         previousPositions[index] = DisplacementObjects[index].position;
 
-        return displacementsInMeters;
+        return (T)(object)displacementsInMeters;
     }
 }
