@@ -20,7 +20,10 @@ public class Lidar : BaseSensor
 
     private float[] results;
 
-    // initialise lidar using raycast command for parallel with settings received
+    /// <summary>
+    /// Initialise lidar using raycast command for parallel with settings received
+    /// WARNING: Parameters of device must be initialised before calling this
+    /// </summary>
     public override void InitialiseSensor()
     {
         raycastCommands = new NativeArray<RaycastCommand>(raycastOrigins.Length, Allocator.Persistent);
