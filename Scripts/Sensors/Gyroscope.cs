@@ -19,6 +19,11 @@ public class Gyroscope : BaseSensor
     private Transform[] transforms;
     private DeviceData[] deviceDatas;
 
+    public override void ConfigureDevice()
+    {
+        throw new System.NotImplementedException();
+    }
+
     /// <summary>
     /// Initialises Gyroscope sensor if either articulation bodies or rigidbodies have been assigned
     /// </summary>

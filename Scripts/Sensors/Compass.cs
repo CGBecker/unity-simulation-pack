@@ -12,6 +12,11 @@ public class Compass : BaseSensor
     private bool _usePointers = false;
     private float _rotationSpeed = 1f;
 
+    public override void ConfigureDevice()
+    {
+        throw new System.NotImplementedException();
+    }
+
     /// <summary>
     /// Initialises Compass sensor
     /// OBS.: If no Pointer needles have been provided, it only returns sensor data instead of pointing North

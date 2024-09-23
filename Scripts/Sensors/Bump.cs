@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Bump : BaseSensor
 {
+
+    public override void ConfigureDevice()
+    {
+        throw new System.NotImplementedException();
+    }
     public override void InitialiseSensor()
     {
         throw new System.NotImplementedException();

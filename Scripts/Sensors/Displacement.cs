@@ -7,6 +7,11 @@ public class Displacement : BaseSensor
     private Vector3[] previousPositions;
     public Transform[] DisplacementObjects;
 
+    public override void ConfigureDevice()
+    {
+        throw new System.NotImplementedException();
+    }
+
     /// <summary>
     /// Initialise Displacement Sensor
     /// WARNING: DisplacementObjects variable must be assigned before initialisation
