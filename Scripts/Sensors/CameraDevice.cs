@@ -7,10 +7,13 @@ using Unity.Burst;
 
 public class CameraDevice : BaseSensor
 {
-    // Create camera component
-    public Transform[] CamerasTransforms;
-    private Camera[] cameras;
-    private HDAdditionalCameraData[] camerasDatas;
+    /// <summary>
+    /// Gameobjects for where the cameras are to be either added or have already been added
+    /// OBS.: Gameobjects MUST be assigned for the device to work but the Camera components need not be pre-added, but can
+    /// </summary>
+    public GameObject[] CamerasGameobjects;  // Gameobjects of either the camera or objects to add camera component
+    private Camera[] cameras;  // Cameras to be assigned or created
+    private HDAdditionalCameraData[] camerasDatas;  // cameras data components for controlling extra settings
 
 #region Camera Settings
     public float2 CameraResolution;
@@ -49,41 +52,28 @@ public class CameraDevice : BaseSensor
     public Vignette VignetteSettings;
 #endregion
 
-    // initialise and configure camera component from given settings
-    // - Camera resolution
-    // - FPS
-    // - Field of View
-    // - Clipping Planes (near and far)
-    // - Sensor size
-    // - ISO
-    // - Shutter Speed
-    // - Gate Fit
-    // - Focal Length
-    // - Shift
-    // - Aperture
-    // - Focus Distance
-    // - Aperture shape
-    //  |_ Blade Count
-    //  |_ Curvature
-    //  |_ Barrel Clipping
-    //  |_ Anamorphism
-    // - Post Anti-Alias
-    // - Stop NaNs
-    // - Dithering
-    // - Culling Mask
-    // - Exposure Target Object
-    // - Background type (Sky, colour,...)
-    // - Exposure (Auto, Manual,...)
-    // - Bloom
-    // - Color Adjustments
-    // - Film Grain
-    // - Motion Blur
-    // - Tonemapping
-    // - Vignette
-
     public override void ConfigureDevice()
     {
-        throw new System.NotImplementedException();
+        if (CamerasGameobjects == null)
+        {
+            Debug.LogError("ERROR: No camera Transform assigned to Camera Device!");
+            return;
+        }
+        cameras = new Camera[CamerasGameobjects.Length];
+        camerasDatas = new HDAdditionalCameraData[CamerasGameobjects.Length];
+        for (int i = 0; i < CamerasGameobjects.Length; i++)
+        {
+            if (CamerasGameobjects[i].TryGetComponent<Camera>(out cameras[i]))
+            {
+                camerasDatas[i] = CamerasGameobjects[i].GetComponent<HDAdditionalCameraData>();
+            }
+            else
+            {
+                cameras[i] = CamerasGameobjects[i].AddComponent<Camera>();
+                camerasDatas[i] = CamerasGameobjects[i].AddComponent<HDAdditionalCameraData>();
+            }
+        }
+        
     }
     public override void InitialiseSensor()
     {
