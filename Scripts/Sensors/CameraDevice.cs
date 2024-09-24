@@ -1,7 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
+using Unity.Mathematics;
+using Unity.Burst;
 
 public class CameraDevice : BaseSensor
 {
@@ -9,6 +11,43 @@ public class CameraDevice : BaseSensor
     public Transform[] CamerasTransforms;
     private Camera[] cameras;
     private HDAdditionalCameraData[] camerasDatas;
+
+#region Camera Settings
+    public float2 CameraResolution;
+    public uint FPS;
+    public float FieldOfView;
+    public float2 ClippingPlane;
+    public float2 SensorSize;
+    public uint ISO;
+    public float ShutterSpeed;
+    public Camera.GateFitMode GateFitMode;
+    public float FocalLength;
+    public float2 Shift;
+    public float Aperture;
+    public float FocusDistance;
+    public uint ApertureBladeCount;
+    public float2 ApertureCurvature;
+    public float ApertureBarrelClipping;
+    public float ApertureAnamorphism;
+    public HDAdditionalCameraData.AntialiasingMode PostAntiAliasing;
+    public bool StopNaNs;
+    public bool Dithering;
+    public CameraSettings.Culling Culling;
+    public Transform ExposureTargetTransform;
+    public CameraClearFlags BackgroundType;
+#endregion
+
+#region Volume Settings
+    private Volume volume;
+    private VolumeProfile volumeProfile;
+    public ExposureMode ExposureModeSettings;
+    public Bloom BloomSettings;
+    public ColorAdjustments ColorAdjustmentsSettings;
+    public FilmGrain FilmGrainSettings;
+    public MotionBlur MotionBlurSettings;
+    public Tonemapping TonemappingSettings;
+    public Vignette VignetteSettings;
+#endregion
 
     // initialise and configure camera component from given settings
     // - Camera resolution
