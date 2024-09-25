@@ -3,21 +3,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-/// <summary>
-/// Struct of the DeviceData for Gyroscope in orientation (Vector3) and angularVelocity (Vector3)
-/// Data is separated per each Gyroscope sensor (array of DeviceData for all gyro sensors)
-/// </summary>
-public struct DeviceData
-{
-    public Vector3 orientationData;
-    public Vector3 angularVelocityData;
-}
 public class Gyroscope : BaseSensor
 {
     public Rigidbody[] rigidbodies;
     public ArticulationBody[] articulationBodies;
     private Transform[] transforms;
-    private DeviceData[] deviceDatas;
+    private DeviceData<Vector3[]>[] deviceDatas;
 
     public override void ConfigureDevice()
     {
@@ -31,7 +22,7 @@ public class Gyroscope : BaseSensor
     {
         if (rigidbodies != null)
         {
-            deviceDatas = new DeviceData[rigidbodies.Length];
+            deviceDatas = new DeviceData<Vector3[]>[rigidbodies.Length];
             transforms = new Transform[rigidbodies.Length];
             for (int i = 0; i < transforms.Length; i++)
             {
@@ -40,7 +31,7 @@ public class Gyroscope : BaseSensor
         }        
         else if (articulationBodies != null)
         {
-            deviceDatas = new DeviceData[articulationBodies.Length];
+            deviceDatas = new DeviceData<Vector3[]>[articulationBodies.Length];
             transforms = new Transform[articulationBodies.Length];
             for (int i = 0; i < transforms.Length; i++)
             {
@@ -57,23 +48,29 @@ public class Gyroscope : BaseSensor
     /// Returns the data of the Gyroscope
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <returns>DeviceData[] of Gyroscope as two Vector3, orientation and angular velocity, per DeviceData</returns>
+    /// <returns>DeviceData[] of Gyroscope as a Time string and an array of two Vector3, orientation[1] and angular velocity[0], per DeviceData</returns>
     public override T TakeReading<T>()
     {
         if (rigidbodies != null)
         {
             for (int i = 0; i < deviceDatas.Length; i++)
             {
-                deviceDatas[i].angularVelocityData = rigidbodies[i].angularVelocity;
-                deviceDatas[i].orientationData = transforms[i].eulerAngles;
+                Vector3[] tempData = new Vector3[2];
+                tempData[0] = rigidbodies[i].angularVelocity;
+                tempData[1] = transforms[i].eulerAngles;
+                deviceDatas[i].Time = "XXXXXXXX";
+                deviceDatas[i].Data = tempData;
             }
         }
         else if (articulationBodies != null)
         {
             for (int i = 0; i < deviceDatas.Length; i++)
             {
-                deviceDatas[i].angularVelocityData = articulationBodies[i].angularVelocity;
-                deviceDatas[i].orientationData = transforms[i].eulerAngles;
+                Vector3[] tempData = new Vector3[2];
+                tempData[0] = articulationBodies[i].angularVelocity;
+                tempData[1] = transforms[i].eulerAngles;
+                deviceDatas[i].Time = "XXXXXXXX";
+                deviceDatas[i].Data = tempData;
             }
         }
         return (T)(object)deviceDatas;
@@ -84,18 +81,25 @@ public class Gyroscope : BaseSensor
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="index"></param>
-    /// <returns>DeviceData of Gyroscope as two Vector3, orientation and angular velocity, at the index</returns>
+    /// <returns>DeviceData of Gyroscope as a Time string and an array of two Vector3, orientation[1] and angular velocity[0], at the index</returns>
     public override T TakeReading<T>(uint index)
     {
         if (rigidbodies != null)
         {
-            deviceDatas[index].angularVelocityData = rigidbodies[index].angularVelocity;
-            deviceDatas[index].orientationData = transforms[index].eulerAngles;
+            Vector3[] tempData = new Vector3[2];
+            tempData[0] = rigidbodies[index].angularVelocity;
+            tempData[1] = transforms[index].eulerAngles;
+            deviceDatas[index].Time = "XXXXXXXX";
+            deviceDatas[index].Data = tempData;
+            
         }
         else if (articulationBodies != null)
         {
-            deviceDatas[index].angularVelocityData = articulationBodies[index].angularVelocity;
-            deviceDatas[index].orientationData = transforms[index].eulerAngles;
+            Vector3[] tempData = new Vector3[2];
+            tempData[0] = articulationBodies[index].angularVelocity;
+            tempData[1] = transforms[index].eulerAngles;
+            deviceDatas[index].Time = "XXXXXXXX";
+            deviceDatas[index].Data = tempData;
         }
         return (T)(object)deviceDatas[index];
     }
