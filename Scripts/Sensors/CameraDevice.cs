@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
@@ -37,15 +38,16 @@ public class CameraDevice : BaseSensor
     public HDAdditionalCameraData.AntialiasingMode PostAntiAliasing;
     public bool StopNaNs;
     public bool Dithering;
-    public CameraSettings.Culling Culling;
-    public Transform ExposureTargetTransform;
+    // public CameraSettings.Culling Culling;  // TODO: find better way of setting layer mask for culling
+    public GameObject ExposureTarget;
     public CameraClearFlags BackgroundType;
 #endregion
 
 #region Volume Settings
-    private Volume volume;
-    private VolumeProfile volumeProfile;
-    public ExposureMode ExposureModeSettings;
+    private Volume[] volumes;
+    private VolumeProfile[] volumeProfiles;
+    private Exposure[] exposures;
+    public ExposureModeParameter ExposureModeSettings;
     public Bloom BloomSettings;
     public ColorAdjustments ColorAdjustmentsSettings;
     public FilmGrain FilmGrainSettings;
@@ -62,6 +64,39 @@ public class CameraDevice : BaseSensor
             return;
         }
 
+        ValidateInput();
+
+        AssignOrCreateCameras();
+
+        SetGlobalSettings();
+
+        SetCameraSettings();
+
+        CreateAndSetVolumes();
+    }
+    public override void InitialiseSensor()
+    {
+        // enable gameobject/component
+        throw new System.NotImplementedException();
+    }
+
+    // Command for custom render if needed
+    public override T TakeReading<T>()
+    {
+        throw new System.NotImplementedException();
+    }
+    public override T TakeReading<T>(uint index)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    private RenderTexture GetRender(uint index)
+    {
+        return new RenderTexture(CameraResolution.x, CameraResolution.y, CameraRenderBitDepth);
+    }
+
+    private void ValidateInput()
+    {
         if (CameraResolution.x <= 0 || CameraResolution.y <= 0)
         {
             Debug.LogWarning("Broken value detected for Camera Device Resolution: " + CameraResolution + ". Setting default (512,512)");
@@ -131,7 +166,10 @@ public class CameraDevice : BaseSensor
             Debug.LogWarning("Broken value detected for Camera Device ApertureAnamorphism: " + ApertureAnamorphism + ". Setting default (0)");
             ApertureAnamorphism = 0f;
         }
+    }
 
+    private void AssignOrCreateCameras()
+    {
         cameras = new Camera[CamerasGameobjects.Length];
         camerasDatas = new HDAdditionalCameraData[CamerasGameobjects.Length];
         for (int i = 0; i < CamerasGameobjects.Length; i++)
@@ -145,26 +183,80 @@ public class CameraDevice : BaseSensor
                 cameras[i] = CamerasGameobjects[i].AddComponent<Camera>();
                 camerasDatas[i] = CamerasGameobjects[i].AddComponent<HDAdditionalCameraData>();
             }
+            CamerasGameobjects[i].SetActive(false);
         }
     }
-    public override void InitialiseSensor()
+
+    private void SetGlobalSettings()
     {
-        // enable gameobject/component
-        throw new System.NotImplementedException();
+        Application.targetFrameRate = (int)FPS;
+        QualitySettings.vSyncCount = 0;  // Removing VSync so that the FPS is more guaranteed
     }
 
-    // Command for custom render if needed
-    public override T TakeReading<T>()
+    private void SetCameraSettings()
     {
-        throw new System.NotImplementedException();
-    }
-    public override T TakeReading<T>(uint index)
-    {
-        throw new System.NotImplementedException();
+        for (int i = 0; i < CamerasGameobjects.Length; i++)
+        {
+            cameras[i].fieldOfView = FieldOfView;
+            cameras[i].nearClipPlane = ClippingPlane.x;
+            cameras[i].farClipPlane = ClippingPlane.y;
+            cameras[i].sensorSize = SensorSize;
+            cameras[i].iso = (int)ISO;
+            cameras[i].shutterSpeed = ShutterSpeed;
+            cameras[i].gateFit = GateFitMode;
+            cameras[i].focalLength = FocalLength;
+            cameras[i].lensShift = Shift;
+            cameras[i].aperture = Aperture;
+            cameras[i].focusDistance = FocusDistance;
+            cameras[i].bladeCount = (int)ApertureBladeCount;
+            cameras[i].curvature = ApertureCurvature;
+            cameras[i].barrelClipping = ApertureBarrelClipping;
+            cameras[i].anamorphism = ApertureAnamorphism;
+            camerasDatas[i].antialiasing = PostAntiAliasing;
+            camerasDatas[i].stopNaNs = StopNaNs;
+            camerasDatas[i].dithering = Dithering;
+            // cameras[i].cullingMask = 1 << 9;  // TODO: Find better way to do this
+            if (ExposureTarget != null)
+            {
+                camerasDatas[i].exposureTarget = ExposureTarget;
+            }
+            cameras[i].clearFlags = BackgroundType;
+        }
     }
 
-    private RenderTexture GetRender(uint index)
+    private void CreateAndSetVolumes()
     {
-        return new RenderTexture(CameraResolution.x, CameraResolution.y, CameraRenderBitDepth);
+        volumes = new Volume[CamerasGameobjects.Length];
+        volumeProfiles = new VolumeProfile[CamerasGameobjects.Length];
+        if (ExposureModeSettings == ExposureMode.Fixed)
+            {
+                exposures = new Exposure[CamerasGameobjects.Length];
+            }
+        for (int i = 0; i < CamerasGameobjects.Length; i++)
+        {
+            GameObject tempVolumeGameObject = new GameObject("LocalVolume");
+            tempVolumeGameObject.transform.SetParent(CamerasGameobjects[i].transform);
+            tempVolumeGameObject.transform.localPosition = new Vector3(0, 0, 0);
+            volumes[i] = tempVolumeGameObject.AddComponent<Volume>();
+            volumeProfiles[i] = new VolumeProfile();
+            volumes[i].sharedProfile = volumeProfiles[i];
+            BoxCollider tempCollider = tempVolumeGameObject.AddComponent<BoxCollider>();
+            tempCollider.size = new Vector3(0.005f,0.005f,0.005f);
+            tempCollider.isTrigger = true;
+            volumes[i].isGlobal = false;
+
+            if (ExposureModeSettings == ExposureMode.Fixed)
+            {
+                exposures[i] = volumeProfiles[i].Add<Exposure>();
+                exposures[i].mode = ExposureModeSettings;
+            }
+            else
+            {
+                Exposure tempExposure = volumeProfiles[i].Add<Exposure>();
+                tempExposure.mode = ExposureModeSettings;
+            }
+
+
+        }
     }
 }
