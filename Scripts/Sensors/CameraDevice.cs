@@ -256,6 +256,30 @@ public class CameraDevice : BaseSensor
                 tempExposure.mode = ExposureModeSettings;
             }
 
+            Bloom tempBloom = volumeProfiles[i].Add<Bloom>();
+            tempBloom.active = BloomSettings.active;
+            tempBloom.intensity = BloomSettings.intensity;
+            tempBloom.threshold = BloomSettings.threshold;
+            tempBloom.quality = BloomSettings.quality;
+            tempBloom.scatter = BloomSettings.scatter;
+            tempBloom.tint = BloomSettings.tint;
+            if (BloomSettings.dirtTexture != null)
+            {
+                tempBloom.dirtTexture = BloomSettings.dirtTexture;
+                tempBloom.dirtIntensity = BloomSettings.dirtIntensity;
+            }
+
+            ColorAdjustments tempColorAdjustments = volumeProfiles[i].Add<ColorAdjustments>();
+
+            FilmGrain tmepFilmGrain = volumeProfiles[i].Add<FilmGrain>();
+
+            MotionBlur tmepMotionBlur = volumeProfiles[i].Add<MotionBlur>();
+
+            Tonemapping tempTonemapping = volumeProfiles[i].Add<Tonemapping>();
+
+            Vignette tempVignette = volumeProfiles[i].Add<Vignette>();
+
+
 
         }
     }
