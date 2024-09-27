@@ -13,6 +13,7 @@ public class CameraDevice : BaseSensor
     /// OBS.: Gameobjects MUST be assigned for the device to work but the Camera components need not be pre-added, but can
     /// </summary>
     public GameObject[] CamerasGameobjects;  // Gameobjects of either the camera or objects to add camera component
+    private int _lengthOfCamerasArray;  // making it marginally faster to loop
     private Camera[] cameras;  // Cameras to be assigned or created
     private HDAdditionalCameraData[] camerasDatas;  // cameras data components for controlling extra settings
     private DeviceData<RenderTexture>[] deviceDatas;  // Data per camera
@@ -64,6 +65,8 @@ public class CameraDevice : BaseSensor
             return;
         }
 
+        _lengthOfCamerasArray = CamerasGameobjects.Length;
+
         ValidateInput();
 
         AssignOrCreateCameras();
@@ -76,23 +79,32 @@ public class CameraDevice : BaseSensor
     }
     public override void InitialiseSensor()
     {
-        // enable gameobject/component
+        // TODO: Later add enabling of camera permanently if input added for constant rendering
         throw new System.NotImplementedException();
     }
 
-    // Command for custom render if needed
     public override T TakeReading<T>()
     {
-        throw new System.NotImplementedException();
+        for (int i = 0; i < _lengthOfCamerasArray; i++)
+        {
+            deviceDatas[i].Data = GetRender((uint)i);
+            deviceDatas[i].Time = "XXXXXXX";
+        }
+        return (T)(object)deviceDatas;
     }
     public override T TakeReading<T>(uint index)
     {
-        throw new System.NotImplementedException();
+        deviceDatas[index].Data = GetRender(index);
+        deviceDatas[index].Time = "XXXXXXX";
+        return (T)(object)deviceDatas[index];
     }
 
     private RenderTexture GetRender(uint index)
     {
-        return new RenderTexture(CameraResolution.x, CameraResolution.y, CameraRenderBitDepth);
+        var tempRT = new RenderTexture(CameraResolution.x, CameraResolution.y, CameraRenderBitDepth);
+        cameras[index].targetTexture = tempRT;
+        cameras[index].Render();
+        return tempRT;
     }
 
     private void ValidateInput()
@@ -170,9 +182,9 @@ public class CameraDevice : BaseSensor
 
     private void AssignOrCreateCameras()
     {
-        cameras = new Camera[CamerasGameobjects.Length];
-        camerasDatas = new HDAdditionalCameraData[CamerasGameobjects.Length];
-        for (int i = 0; i < CamerasGameobjects.Length; i++)
+        cameras = new Camera[_lengthOfCamerasArray];
+        camerasDatas = new HDAdditionalCameraData[_lengthOfCamerasArray];
+        for (int i = 0; i < _lengthOfCamerasArray; i++)
         {
             if (CamerasGameobjects[i].TryGetComponent<Camera>(out cameras[i]))
             {
@@ -195,7 +207,7 @@ public class CameraDevice : BaseSensor
 
     private void SetCameraSettings()
     {
-        for (int i = 0; i < CamerasGameobjects.Length; i++)
+        for (int i = 0; i < _lengthOfCamerasArray; i++)
         {
             cameras[i].fieldOfView = FieldOfView;
             cameras[i].nearClipPlane = ClippingPlane.x;
@@ -226,13 +238,13 @@ public class CameraDevice : BaseSensor
 
     private void CreateAndSetVolumes()
     {
-        volumes = new Volume[CamerasGameobjects.Length];
-        volumeProfiles = new VolumeProfile[CamerasGameobjects.Length];
+        volumes = new Volume[_lengthOfCamerasArray];
+        volumeProfiles = new VolumeProfile[_lengthOfCamerasArray];
         if (ExposureModeSettings == ExposureMode.Fixed)
             {
-                exposures = new Exposure[CamerasGameobjects.Length];
+                exposures = new Exposure[_lengthOfCamerasArray];
             }
-        for (int i = 0; i < CamerasGameobjects.Length; i++)
+        for (int i = 0; i < _lengthOfCamerasArray; i++)
         {
             GameObject tempVolumeGameObject = new GameObject("LocalVolume");
             tempVolumeGameObject.transform.SetParent(CamerasGameobjects[i].transform);
