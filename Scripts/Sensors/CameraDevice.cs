@@ -270,17 +270,35 @@ public class CameraDevice : BaseSensor
             }
 
             ColorAdjustments tempColorAdjustments = volumeProfiles[i].Add<ColorAdjustments>();
+            tempColorAdjustments.postExposure = ColorAdjustmentsSettings.postExposure;
+            tempColorAdjustments.contrast = ColorAdjustmentsSettings.contrast;
+            tempColorAdjustments.colorFilter = ColorAdjustmentsSettings.colorFilter;
+            tempColorAdjustments.hueShift = ColorAdjustmentsSettings.hueShift;
+            tempColorAdjustments.saturation = ColorAdjustmentsSettings.saturation;
 
             FilmGrain tmepFilmGrain = volumeProfiles[i].Add<FilmGrain>();
+            tmepFilmGrain.type = FilmGrainSettings.type;
+            tmepFilmGrain.intensity = FilmGrainSettings.intensity;
+            tmepFilmGrain.response = FilmGrainSettings.response;
 
             MotionBlur tmepMotionBlur = volumeProfiles[i].Add<MotionBlur>();
+            tmepMotionBlur.intensity = MotionBlurSettings.intensity;
+            tmepMotionBlur.quality = MotionBlurSettings.quality;
+            tmepMotionBlur.sampleCount = MotionBlurSettings.sampleCount;
+            tmepMotionBlur.maximumVelocity = MotionBlurSettings.maximumVelocity;
+            tmepMotionBlur.minimumVelocity = MotionBlurSettings.minimumVelocity;
 
             Tonemapping tempTonemapping = volumeProfiles[i].Add<Tonemapping>();
+            tempTonemapping.mode = TonemappingSettings.mode;  // TODO: Add all other params later
 
             Vignette tempVignette = volumeProfiles[i].Add<Vignette>();
-
-
-
+            tempVignette.mode = VignetteSettings.mode;
+            tempVignette.color = VignetteSettings.color;
+            tempVignette.center = VignetteSettings.center;
+            tempVignette.intensity = VignetteSettings.intensity;
+            tempVignette.smoothness = VignetteSettings.smoothness;
+            tempVignette.roundness = VignetteSettings.roundness;
+            tempVignette.rounded = VignetteSettings.rounded;
         }
     }
 }
