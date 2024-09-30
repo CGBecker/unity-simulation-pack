@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 public class Bump : BaseSensor
 {
@@ -33,17 +32,24 @@ public class Bump : BaseSensor
 
     public bool[] IsTrigger;
     public PhysicMaterial[] physicMaterials;
+    private PhysicMaterial _defaultMaterial = new PhysicMaterial();
 
     private uint _collidersCount;
     private bool[] _contacts;
+    private DeviceData<bool>[] _bumpData;
 
     public override void ConfigureDevice()
     {
         _collidersCount = (uint)(BoxColliders.Length+SphereColliders.Length+CapsuleColliders.Length+MeshColliders.Length);
         _contacts = new bool[_collidersCount];
+        _bumpData = new DeviceData<bool>[_collidersCount];
 
         for (uint i = 0; i < _collidersCount; i++)
         {
+            if (physicMaterials[i] == null)
+            {
+                physicMaterials[i] = _defaultMaterial;
+            }
             if (i < BoxColliders.Length)
             {
                 BoxColliders[i].size = BoxSizes[i];
@@ -87,45 +93,122 @@ public class Bump : BaseSensor
     {
         for (uint i = 0; i < _collidersCount; i++)
         {
-            if (i < BoxColliders.Length)
-            {
-
-            }
-            else if (i < (BoxColliders.Length+SphereColliders.Length))
-            {
-                
-            }
-            else if (i < (BoxColliders.Length+SphereColliders.Length+CapsuleColliders.Length))
-            {
-                
-            }
-            else
-            {
-                
-            }
+            _bumpData[i].Time = "XXXXXX";    // Would the time be correct here since the reading does not take place here?
+            _bumpData[i].Data = _contacts[i];
+            _contacts[i] = false;
         }
-
-        return (T)(object)_contacts;
+        return (T)(object)_bumpData;
     }
     public override T TakeReading<T>(uint index)
     {
-        if (index < BoxColliders.Length)
-        {
+        _bumpData[index].Time = "XXXXXX";  // Would the time be correct here since the reading does not take place here?
+        _bumpData[index].Data = _contacts[index];
+        _contacts[index] = false;
+        return (T)(object)_bumpData[index];
+    }
 
-        }
-        else if (index < (BoxColliders.Length+SphereColliders.Length))
+    private void OnTriggerEnter(Collider other)
+    {
+        for (uint i = 0; i < _collidersCount; i++)
         {
-            
+            if (i < BoxColliders.Length)
+            {
+                if (other == BoxColliders[i])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else if (i < (BoxColliders.Length+SphereColliders.Length))
+            {
+                if (other == SphereColliders[i-(uint)BoxColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else if (i < (BoxColliders.Length+SphereColliders.Length+CapsuleColliders.Length))
+            {
+                if (other == CapsuleColliders[i-(uint)BoxColliders.Length-(uint)SphereColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else
+            {
+                if (other == MeshColliders[i-(uint)BoxColliders.Length-(uint)SphereColliders.Length-(uint)CapsuleColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
         }
-        else if (index < (BoxColliders.Length+SphereColliders.Length+CapsuleColliders.Length))
-        {
-            
-        }
-        else
-        {
-            
-        }
+    }
 
-        return (T)(object)_contacts[index];
+    private void OnTriggerExit(Collider other)
+    {
+        for (uint i = 0; i < _collidersCount; i++)
+        {
+            if (i < BoxColliders.Length)
+            {
+                if (other == BoxColliders[i])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else if (i < (BoxColliders.Length+SphereColliders.Length))
+            {
+                if (other == SphereColliders[i-(uint)BoxColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else if (i < (BoxColliders.Length+SphereColliders.Length+CapsuleColliders.Length))
+            {
+                if (other == CapsuleColliders[i-(uint)BoxColliders.Length-(uint)SphereColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else
+            {
+                if (other == MeshColliders[i-(uint)BoxColliders.Length-(uint)SphereColliders.Length-(uint)CapsuleColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+        }
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        for (uint i = 0; i < _collidersCount; i++)
+        {
+            if (i < BoxColliders.Length)
+            {
+                if (other.collider == BoxColliders[i])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else if (i < (BoxColliders.Length+SphereColliders.Length))
+            {
+                if (other.collider == SphereColliders[i-(uint)BoxColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else if (i < (BoxColliders.Length+SphereColliders.Length+CapsuleColliders.Length))
+            {
+                if (other.collider == CapsuleColliders[i-(uint)BoxColliders.Length-(uint)SphereColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+            else
+            {
+                if (other.collider == MeshColliders[i-(uint)BoxColliders.Length-(uint)SphereColliders.Length-(uint)CapsuleColliders.Length])
+                {
+                    _contacts[i] = true;
+                }
+            }
+        }
     }
 }
