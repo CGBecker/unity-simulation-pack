@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class ArticulationDevice : BaseActuator
@@ -24,13 +26,15 @@ public class ArticulationDevice : BaseActuator
     public ArticulationJointType[] ArticulationJointTypes;
     public ArticulationDriveAxis[] ArticulationDrivesAxis;
     private ArticulationDrive[] _articulationDrives;
+    private Dictionary<uint2, ArticulationDrive> _articulationDriveDicts;  // Attetmpting to use the dict for indexing the Spherical Articulation Drives for memory reasons (uint(indexOfArty, driveAxis), Arty)
     /// <summary>
     /// OBS.: Not all Articulation Body types can have Locked Motion
     /// </summary>
     public ArticulationDofLock[] MotionIfPrismaticOrRevolut;
-    public uint[] SwingYIfSpherical;
-    public uint[] SwingZIfSpherical;
-    public uint[] TwistIfSpherical;
+    public float2[] LowerAndUpperLimitsIfPrismatic;
+    public ArticulationDofLock[] SwingYIfSpherical;
+    public ArticulationDofLock[] SwingZIfSpherical;
+    public ArticulationDofLock[] TwistIfSpherical;
     public Vector3[] DriveStiffness;
     public Vector3[] DriveDamping;
     public Vector3[] DriveForceLimit;
@@ -80,16 +84,34 @@ public class ArticulationDevice : BaseActuator
                         case ArticulationDriveAxis.X:
                         {
                             _articulationDrives[i] = _articulationBodies[i].xDrive;
+                            _articulationBodies[i].linearLockX = MotionIfPrismaticOrRevolut[i];
+                            _articulationDrives[i].stiffness = DriveStiffness[i].x;
+                            _articulationDrives[i].damping = DriveDamping[i].x;
+                            _articulationDrives[i].forceLimit = DriveForceLimit[i].x;
+                            _articulationDrives[i].target = DriveTarget[i].x;
+                            _articulationDrives[i].targetVelocity = DriveTargetVelocity[i].x;
                             break;
                         }
                         case ArticulationDriveAxis.Y:
                         {
                             _articulationDrives[i] = _articulationBodies[i].yDrive;
+                            _articulationBodies[i].linearLockY = MotionIfPrismaticOrRevolut[i];
+                            _articulationDrives[i].stiffness = DriveStiffness[i].x;
+                            _articulationDrives[i].damping = DriveDamping[i].x;
+                            _articulationDrives[i].forceLimit = DriveForceLimit[i].x;
+                            _articulationDrives[i].target = DriveTarget[i].x;
+                            _articulationDrives[i].targetVelocity = DriveTargetVelocity[i].x;
                             break;
                         }
                         case ArticulationDriveAxis.Z:
                         {
                             _articulationDrives[i] = _articulationBodies[i].zDrive;
+                            _articulationBodies[i].linearLockZ = MotionIfPrismaticOrRevolut[i];
+                            _articulationDrives[i].stiffness = DriveStiffness[i].x;
+                            _articulationDrives[i].damping = DriveDamping[i].x;
+                            _articulationDrives[i].forceLimit = DriveForceLimit[i].x;
+                            _articulationDrives[i].target = DriveTarget[i].x;
+                            _articulationDrives[i].targetVelocity = DriveTargetVelocity[i].x;
                             break;
                         }
                         default:
@@ -98,11 +120,24 @@ public class ArticulationDevice : BaseActuator
                             break;
                         }
                     }
+                    _articulationDrives[i].lowerLimit = LowerAndUpperLimitsIfPrismatic[i].x;
+                    _articulationDrives[i].upperLimit = LowerAndUpperLimitsIfPrismatic[i].y;
+                    _articulationDrives[i].driveType = DriveTypes[i];
                     break;
                 }
                 case ArticulationJointType.RevoluteJoint:
                 {
                     _articulationDrives[i] = _articulationBodies[i].xDrive;
+                    _articulationBodies[i].linearLockX = MotionIfPrismaticOrRevolut[i];
+                    _articulationDrives[i].driveType = DriveTypes[i];
+                    break;
+                }
+                case ArticulationJointType.SphericalJoint:
+                {
+                    _articulationBodies[i].swingYLock = SwingYIfSpherical[i];
+                    _articulationBodies[i].swingZLock = SwingZIfSpherical[i];
+                    _articulationBodies[i].twistLock = TwistIfSpherical[i];
+                    // _articulationBodies[i].xDrive.driveType = DriveTypes[i];
                     break;
                 }
                 default:
