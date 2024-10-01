@@ -28,10 +28,12 @@ public class MultiWheelVehicleController : BaseVehicleController
         base.Start();
 
         _headLightsController = gameObject.AddComponent<BaseLightActuator>();
-        _headLightsController.InitialiseLights(HeadLights, false);
+        _headLightsController.Lights = HeadLights;
+        _headLightsController.ConfigureDevice();
 
         _tailAndBrakeLightsController = gameObject.AddComponent<BaseLightActuator>();
-        _tailAndBrakeLightsController.InitialiseLights(TailAndBrakeLights, false);
+        _tailAndBrakeLightsController.Lights = TailAndBrakeLights;
+        _tailAndBrakeLightsController.ConfigureDevice();
         _brakeLightsIntensity = new float[TailAndBrakeLightsIntensity.Length];
         for (uint lightsIndex = 0; lightsIndex < TailAndBrakeLightsIntensity.Length; lightsIndex++)
         {
@@ -39,7 +41,8 @@ public class MultiWheelVehicleController : BaseVehicleController
         }
 
         _reverseLightsController = gameObject.AddComponent<BaseLightActuator>();
-        _reverseLightsController.InitialiseLights(ReverseLights, false);
+        _reverseLightsController.Lights = ReverseLights;
+        _reverseLightsController.ConfigureDevice();
     }
 
     protected override void Update()

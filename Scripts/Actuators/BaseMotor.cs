@@ -13,6 +13,17 @@ public class BaseMotor : BaseActuator
 
     // Command method to receive commands in torque or friction to initialise tasks
     // Must be able to stop previous tasks
+
+    public override void InitialiseDevice()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void ConfigureDevice()
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override bool Command<T>(T targetTorque)
     {
         throw new System.NotImplementedException();

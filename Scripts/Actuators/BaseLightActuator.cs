@@ -11,32 +11,24 @@ using System.Threading;
 /// </summary>
 public class BaseLightActuator : BaseActuator
 {
+    public Light[] Lights;
     private HDAdditionalLightData[] _lightsData;
     private float[] _previousLightsIntensity;
-    private Task[] _tasks;
-    private CancellationTokenSource[] _sources;
-    private CancellationToken[] _tokens;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="lights"></param>
-    /// <param name="enableProgressiveDeltaSupport">Enables progressive light control support. (OBS.: Experimental, may cause overhead and instability)</param>
-    public void InitialiseLights(Light[] lights, bool enableProgressiveDeltaSupport)
+    public override void InitialiseDevice()
     {
-        _lightsData = new HDAdditionalLightData[lights.Length];
-        for (int lightsIndex = 0; lightsIndex < lights.Length; lightsIndex++)
+        throw new System.NotImplementedException();
+    }
+
+    public override void ConfigureDevice()
+    {
+        _lightsData = new HDAdditionalLightData[Lights.Length];
+        for (int lightsIndex = 0; lightsIndex < Lights.Length; lightsIndex++)
         {
-            _lightsData[lightsIndex] = lights[lightsIndex].GetComponent<HDAdditionalLightData>();
+            _lightsData[lightsIndex] = Lights[lightsIndex].GetComponent<HDAdditionalLightData>();
             _lightsData[lightsIndex].lightUnit = LightUnit.Lumen;
             _lightsData[lightsIndex].intensity = 0f;
             _lightsData[lightsIndex].gameObject.SetActive(false);
-        }
-        if (enableProgressiveDeltaSupport)
-        {
-            _tasks = new Task[lights.Length];
-            _sources = new CancellationTokenSource[lights.Length];
-            _tokens = new CancellationToken[lights.Length];
         }
     }
 
@@ -54,7 +46,7 @@ public class BaseLightActuator : BaseActuator
     }
 
     /// <summary>
-    /// Instant light command for one or all lights at once
+    /// Instant light command for one or all Lights at once
     /// </summary>
     /// <param name="intensity"></param>
     public override bool Command<T>(T intensity)
